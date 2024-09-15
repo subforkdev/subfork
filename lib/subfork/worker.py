@@ -262,6 +262,7 @@ def process_task(runner, task):
             log.warning("task not saved")
 
         # requeue task if within retry limit and the data input was valid
+        # TODO: only requeue certain errors
         if not success and (num_failures < runner.limit) and input_is_valid:
             log.info("requeueing: %s", task)
             resp = task.requeue()

@@ -3,10 +3,11 @@
 # Copyright (c) Subfork. All rights reserved.
 #
 
+import codecs
 import os
 import sys
-import codecs
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 6):
     raise RuntimeError("Subfork requires Python 3.6+")
@@ -28,6 +29,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Subfork",
     author_email="help@subfork.com",
+    url="https://github.com/subforkdev/subfork",
     version=__version__,
     license="BSD 3-Clause License",
     classifiers=[

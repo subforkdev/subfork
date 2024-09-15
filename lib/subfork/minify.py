@@ -43,7 +43,7 @@ def minify_css(src):
 
 
 def minify_js(src):
-    """Returns minified js source."""
+    """Returns minified js source code."""
 
     minified = ""
 

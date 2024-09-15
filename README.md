@@ -154,14 +154,14 @@ routes (or endpoints), static files and task worker definitions.
 For example, this config file contains two endpoints and a worker:
 
 ```yaml
-# enter verified site domain here
+# enter site domain (e.g. mysite.fork.io)
 domain: ${SUBFORK_DOMAIN}
 
 # enter site credentials here
 access_key: ${SUBFORK_ACCESS_KEY}
 secret_key: ${SUBFORK_SECRET_KEY}
 
-# path to templates and static files
+# path to templates and static files (optional)
 template_folder: templates
 static_folder: static
 
@@ -174,7 +174,7 @@ templates:
     route: /user/<username>
     file: user.html
 
-# task worker definitions
+# task worker definitions (optional)
 workers:
   test:
     queue: test

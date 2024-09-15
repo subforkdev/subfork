@@ -7,11 +7,12 @@ __doc__ = """
 Contains client classes and functions.
 """
 
-import sys
-import json
 import hashlib
-import requests
+import json
+import re
+import sys
 
+import requests
 import subfork.config as config
 import subfork.util as util
 from subfork.api.site import Site
@@ -73,8 +74,8 @@ class SubforkHttpClient(object):
         :param secret_key: secret key ($SUBFORK_SECRET_KEY).
         """
         super(SubforkHttpClient, self).__init__()
-        self.host = host
-        self.port = port
+        self.host = re.sub(r"^https?://", "", host)
+        self.port = int(port)
         self.base_url = self.format_base_url(host, port)
         self.api_url = self.base_url + "/" + api_version
         self.auth = (access_key, secret_key)
@@ -160,15 +161,15 @@ class SubforkHttpClient(object):
         except requests.exceptions.ConnectionError as e:
             self.last_error = str(e)
             log.warning("could not connect to host: %s", self.host)
+            log.debug(self.last_error)
         return
 
     def format_base_url(self, host, port=None):
         """Returns formatted base url for API requests for a given host and
         port (optional). Uses http for the protocol."""
-        if port:
-            return f"http://{host}:{port}"
-        else:
-            return f"http://{host}"
+        if host == "localhost":
+            return f"http://localhost:{port}"
+        return f"https://{host}"
 
     def format_url(self, url):
         """Returns a formatted api request url."""
