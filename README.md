@@ -160,7 +160,11 @@ Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 The `subfork.yml` config file contains required auth info, page templates,
 routes (or endpoints), static files and task worker definitions.
 
-For example, this config file contains two endpoints and a worker:
+```shell
+$ curl -o subfork.yml https://raw.githubusercontent.com/subforkdev/master/subfork.yml
+```
+
+The example config file contains two endpoints and a worker:
 
 ```yaml
 # enter site domain (e.g. mysite.fork.io)
@@ -188,6 +192,16 @@ workers:
   test:
     queue: test
     function: subfork.worker.test
+```
+
+#### Distribution
+
+File distribution can be optionally managed using the `dist.json` file and
+installed using [distman](https://github.com/rsgalloway/distman):
+
+```shell
+$ curl -o dist.json https://raw.githubusercontent.com/subforkdev/master/dist.json
+$ distman [OPTIONS]
 ```
 
 ## Demo
