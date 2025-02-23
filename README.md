@@ -4,7 +4,7 @@ Subfork Python API
 Subfork is the easiest way to build and deploy static sites and micro web apps.
 This package provides the Subfork Python API and command line interface.
 
-- Docs: https://docs.subfork.com
+- Docs: https://docs.fork.io
 - GitHub: https://github.com/subforkdev/subfork
 - PyPI: https://pypi.org/project/subfork
 
