@@ -13,7 +13,7 @@ This package provides the Subfork Python API and command line interface.
 The easiest way to install:
 
 ```shell
-$ pip install subfork
+$ pip install -U subfork
 ```
 
 Source code:
@@ -29,7 +29,16 @@ Requires Python 3.6+.
 In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
 
-To use environment variables, set the following:
+Subfork uses [envstack](https://github.com/rsgalloway/envstack) to manage
+environment variables, which are stored in a subfork.env file. Access keys can
+be stored securely in the subfork.env file (see [instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption) for generating
+encryption keys):
+
+```bash
+$ envstack subfork --encrypt [-o subfork.env]
+```
+
+Or to use environment variables without a subfork.env file, set the following:
 
 ```shell
 $ export SUBFORK_ACCESS_KEY=<access key>
@@ -40,7 +49,7 @@ Or create a `subfork.yml` [config file](#config-file) at the root of your projec
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
 ```shell
-$ export SUBFORK_CONFIG_FILE=/path/to/subfork.yml
+$ export SUBFORK_CONFIG_FILE=subfork.yml
 ```
 
 ## Quick Start
