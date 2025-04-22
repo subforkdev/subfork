@@ -56,7 +56,7 @@ setup(
         ],
     },
     install_requires=[
-        "envstack==0.8.1",
+        "envstack>=0.8.1",
         "jsmin==3.0.1",
         "psutil==5.9.3",
         "PyYAML==5.3.1",
