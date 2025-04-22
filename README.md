@@ -194,12 +194,21 @@ workers:
     function: subfork.worker.test
 ```
 
+#### Environments
+
+Environments can be easily managed using envstack:
+
+```bash
+$ ./subfork.env -- subfork run
+```
+
 #### Distribution
 
 File distribution can be optionally managed using the `dist.json` file and
 installed using [distman](https://github.com/rsgalloway/distman):
 
 ```shell
+$ pip install -U distman
 $ curl -o dist.json https://raw.githubusercontent.com/subforkdev/master/dist.json
 $ distman [OPTIONS]
 ```

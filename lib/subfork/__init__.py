@@ -8,8 +8,8 @@ try:
 
     envstack.init("subfork")
 
-except ImportError:
-    print("envstack is not installed: `pip install -U envstack`")
+except ImportError as err:
+    print("error initializing environment: %s" % err)
 
 from subfork.client import Subfork
 from subfork.util import get_client
