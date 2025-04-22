@@ -105,6 +105,9 @@ AUTO_MINIMIZE = get_config("auto_minimize", True)
 # restart workers when config file changes, or every 12 hours
 AUTO_RESTART_WORKERS = get_config("auto_restart", True)
 
+# default build directory
+BUILD_FOLDER = get_config("build_folder", "public")
+
 # maximum upload size in bytes
 MAX_UPLOAD_BYTES = 1e7
 
