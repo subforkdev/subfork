@@ -1,12 +1,20 @@
 Subfork Python API
 ==================
 
+[Quickstart](#quickstart) |
+[Basic Commands](#basic-commands) |
+[Workers](#workers) |
+[Config File](#config-file) |
+[Environments](#environments) |
+[Distribution](#distribution)
+
 Subfork is the easiest way to build and deploy static sites and micro web apps.
 This package provides the Subfork Python API and command line interface.
 
 - Docs: https://docs.fork.io
 - GitHub: https://github.com/subforkdev/subfork
 - PyPI: https://pypi.org/project/subfork
+- Demo: https://test.fork.io
 
 ## Installation
 
@@ -30,29 +38,31 @@ In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
 
 Subfork uses [envstack](https://github.com/rsgalloway/envstack) to manage
-environment variables, which are stored in a subfork.env file. Access keys can
-be stored securely in the subfork.env file (see [instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption) for generating
-encryption keys):
+environment variables. Environment variables can be stored in different .env
+files, for example `prod.env`, `dev.env` or `default.env` files. Access keys can
+be stored securely in an .env file (see
+[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
+for generating encryption keys):
 
 ```bash
-$ envstack subfork --encrypt [-o subfork.env]
+$ envstack keys -eo secrets.env
 ```
 
-Or to use environment variables without a subfork.env file, set the following:
+Or to use environment variables without .env files, set the following:
 
 ```shell
 $ export SUBFORK_ACCESS_KEY=<access key>
 $ export SUBFORK_SECRET_KEY=<secret key>
 ```
 
-Or create a `subfork.yml` [config file](#config-file) at the root of your project
+Modify the `subfork.yml` [config file](#config-file) at the root of your project
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
 ```shell
-$ export SUBFORK_CONFIG_FILE=subfork.yml
+$ export SUBFORK_CONFIG_FILE=/etc/subfork/conf/subfork.yml
 ```
 
-## Quick Start
+## Quickstart
 
 To use the Subfork Python API you must first complete the configuration steps
 below. Then instantiate a client using the site domain and access keys:
@@ -194,7 +204,7 @@ workers:
     function: subfork.worker.test
 ```
 
-#### Environments
+## Environments
 
 Settings can be easily managed using [envstack](https://github.com/rsgalloway/envstack)
 to manage environments. By default, subfork looks for a `subfork.env`
@@ -205,7 +215,7 @@ a `prod.env` environment file, or a `dev.env` environment file:
 $ ./dev.env -- subfork run
 ```
 
-#### Distribution
+## Distribution
 
 File distribution can be optionally managed using the `dist.json` file and
 installed using [distman](https://github.com/rsgalloway/distman):
