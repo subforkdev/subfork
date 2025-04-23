@@ -170,17 +170,21 @@ def build(template_file, build_root=None, update_links=True):
     """Creates a build directory for a given site. The build directory
     has the following structure:
 
-        build
+        public
           |- templates
           |    `- <page>.html
           |- static
           |    `- <file>.ext
           `- template.yml
 
+    The name of the build directory is determined by the `build_folder`
+    setting in the template file. If not set, the default is `public`.
+
     :param template_file: path to template.yml file.
-    :param build_root: build output root directory.
+    :param build_root: build output root directory (default is same folder as
+        the template file).
     :param update_links: update links to static files.
-    :returns: path to build file.
+    :returns: path to build subfork template file.
     """
 
     if not os.path.exists(template_file):
@@ -205,10 +209,11 @@ def build(template_file, build_root=None, update_links=True):
 
     # create the build tree
     if not build_root:
-        build_root = os.path.join(root_directory, "build")
+        build_dir = template_data.get("build_folder", config.BUILD_FOLDER)
+        build_root = os.path.join(root_directory, build_dir)
 
     if os.path.exists(build_root):
-        log.debug("deleting existing build: %s", build_root)
+        log.warning("deleting existing build: %s", build_root)
         shutil.rmtree(build_root)
 
     build_template_folder = os.path.join(build_root, "templates")

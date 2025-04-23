@@ -1,19 +1,27 @@
 Subfork Python API
 ==================
 
+[Quickstart](#quickstart) |
+[Basic Commands](#basic-commands) |
+[Workers](#workers) |
+[Config File](#config-file) |
+[Environments](#environments) |
+[Distribution](#distribution)
+
 Subfork is the easiest way to build and deploy static sites and micro web apps.
 This package provides the Subfork Python API and command line interface.
 
 - Docs: https://docs.fork.io
 - GitHub: https://github.com/subforkdev/subfork
 - PyPI: https://pypi.org/project/subfork
+- Demo: https://test.fork.io
 
 ## Installation
 
 The easiest way to install:
 
 ```shell
-$ pip install subfork
+$ pip install -U subfork
 ```
 
 Source code:
@@ -29,21 +37,32 @@ Requires Python 3.6+.
 In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
 
-To use environment variables, set the following:
+Subfork uses [envstack](https://github.com/rsgalloway/envstack) to manage
+environment variables. Environment variables can be stored in different .env
+files, for example `prod.env`, `dev.env` or `default.env` files. Access keys can
+be stored securely in an .env file (see
+[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
+for generating encryption keys):
+
+```bash
+$ envstack keys -eo secrets.env
+```
+
+Or to use environment variables without .env files, set the following:
 
 ```shell
 $ export SUBFORK_ACCESS_KEY=<access key>
 $ export SUBFORK_SECRET_KEY=<secret key>
 ```
 
-Or create a `subfork.yml` [config file](#config-file) at the root of your project
+Modify the `subfork.yml` [config file](#config-file) at the root of your project
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
 ```shell
-$ export SUBFORK_CONFIG_FILE=/path/to/subfork.yml
+$ export SUBFORK_CONFIG_FILE=/etc/subfork/conf/subfork.yml
 ```
 
-## Quick Start
+## Quickstart
 
 To use the Subfork Python API you must first complete the configuration steps
 below. Then instantiate a client using the site domain and access keys:
@@ -151,7 +170,11 @@ Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 The `subfork.yml` config file contains required auth info, page templates,
 routes (or endpoints), static files and task worker definitions.
 
-For example, this config file contains two endpoints and a worker:
+```shell
+$ curl -o subfork.yml https://raw.githubusercontent.com/subforkdev/master/subfork.yml
+```
+
+The example config file contains two endpoints and a worker:
 
 ```yaml
 # enter site domain (e.g. mysite.fork.io)
@@ -180,6 +203,30 @@ workers:
     queue: test
     function: subfork.worker.test
 ```
+
+## Environments
+
+Settings can be easily managed using [envstack](https://github.com/rsgalloway/envstack)
+to manage environments. By default, subfork looks for a `subfork.env`
+environment file, but you can easily create different environments, for example
+a `prod.env` environment file, or a `dev.env` environment file:
+
+```bash
+$ ./dev.env -- subfork run
+```
+
+## Distribution
+
+File distribution can be optionally managed using the `dist.json` file and
+installed using [distman](https://github.com/rsgalloway/distman):
+
+```shell
+$ pip install -U distman
+$ ./subfork.env -- distman [OPTIONS]
+```
+
+The `subfork.env` file defines the `${ROOT}` environment variable which is used
+by distman for deployment.
 
 ## Demo
 

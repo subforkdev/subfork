@@ -1,0 +1,25 @@
+{
+    "author": "ryan@rsg.io",
+    "targets": {
+        "bin": {
+            "source": "bin/subfork",
+            "destination": "{DEPLOY_ROOT}/bin/subfork"
+        },
+        "bat": {
+            "source": "bin/subfork.bat",
+            "destination": "{DEPLOY_ROOT}/bin/subfork.bat"
+        },
+        "lib": {
+            "source": "lib/subfork",
+            "destination": "{DEPLOY_ROOT}/lib/python/subfork"
+        },
+        "config": {
+            "source": "subfork.yml",
+            "destination": "{DEPLOY_ROOT}/conf/subfork.yml"
+        },
+        "env": {
+            "source": "subfork.env",
+            "destination": "{DEPLOY_ROOT}/env/subfork.env"
+        }
+    }
+}
