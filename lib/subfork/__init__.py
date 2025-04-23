@@ -9,7 +9,7 @@ try:
     envstack.init("subfork")
 
 except Exception as err:
-    pass
+    print("Could not initialize envstack:", err)
 
 from subfork.client import Subfork
 from subfork.util import get_client
