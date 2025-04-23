@@ -196,10 +196,13 @@ workers:
 
 #### Environments
 
-Environments can be easily managed using envstack:
+Settings can be easily managed using [envstack](https://github.com/rsgalloway/envstack)
+to manage environments. By default, subfork looks for a `subfork.env`
+environment file, but you can easily create different environments, for example
+a `prod.env` environment file, or a `dev.env` environment file:
 
 ```bash
-$ ./subfork.env -- subfork run
+$ ./dev.env -- subfork run
 ```
 
 #### Distribution
@@ -209,9 +212,11 @@ installed using [distman](https://github.com/rsgalloway/distman):
 
 ```shell
 $ pip install -U distman
-$ curl -o dist.json https://raw.githubusercontent.com/subforkdev/master/dist.json
-$ distman [OPTIONS]
+$ ./subfork.env -- distman [OPTIONS]
 ```
+
+The `subfork.env` file defines the `${ROOT}` environment variable which is used
+by distman for deployment.
 
 ## Demo
 

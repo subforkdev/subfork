@@ -8,8 +8,8 @@ try:
 
     envstack.init("subfork")
 
-except ImportError as err:
-    print("error initializing environment: %s" % err)
+except Exception as err:
+    pass
 
 from subfork.client import Subfork
 from subfork.util import get_client

@@ -16,5 +16,4 @@ log/
 tmp/
 venv*/
 .vscode/
-#subfork.yml
 template.yml
