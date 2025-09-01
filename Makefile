@@ -52,6 +52,7 @@ start: install
 
 # Run the dev server
 run:
+	@command -v envstack >/dev/null 2>&1 || { echo >&2 "envstack not installed, run make install."; exit 1; }
 	$(ENVSTACK_CMD) -- subfork run
 
 # Install target to install the builds using distman

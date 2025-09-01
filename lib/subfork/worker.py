@@ -45,22 +45,21 @@ class Worker(threads.StoppableThread):
         self.version = util.get_version()
 
     def get_tasks(
-        self, chunk_size=config.TASK_BATCH_SIZE, throttle=config.TASK_RATE_THROTTLE
+        self,
+        chunk_size: int = config.TASK_BATCH_SIZE,
+        throttle: int = config.TASK_RATE_THROTTLE,
     ):
         """Generator that yields tasks from the queue in chunks."""
 
         queue_size = self.queue.length()
         task_num = 0
 
-        # TODO: reduce chunk size if CPU % too high
         for _ in range(min((queue_size or 0), chunk_size)):
-            # TODO: batch dequeue limit=N tasks (one request vs many)
             task = self.queue.dequeue_task()
             if not task:
                 continue
             task_num += 1
             yield (task_num, task)
-            # TODO: dynamically increase throttle if CPU % too high
             time.sleep(throttle)
 
     def run(self):
@@ -269,7 +268,6 @@ def process_task(runner: TaskRunner, task: Task):
             log.warning("task not saved")
 
         # requeue task if within retry limit and the data input was valid
-        # TODO: only requeue certain errors
         if not success and (num_failures < runner.limit) and input_is_valid:
             log.info("requeueing: %s", task)
             resp = task.requeue()
