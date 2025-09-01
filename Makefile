@@ -59,7 +59,7 @@ run:
 # Install target to install the builds using distman
 install: build
 	@echo "Installing ${PROJECT} using distman..."
-	$(ENVSTACK_CMD) -- dist --yes
+	$(ENVSTACK_CMD) -- dist --force --yes
 
 # Phony targets
 .PHONY: build dryrun install clean run start

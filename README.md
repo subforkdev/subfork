@@ -32,7 +32,8 @@ $ cd subfork
 $ pip install .
 ```
 
-Or use the provided Makefile to install using distman:
+Or modify the `subfork.env` file as needed and use the provided Makefile to
+install using distman:
 
 ```bash
 $ sudo make install
