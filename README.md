@@ -36,17 +36,18 @@ Or modify the `subfork.env` file as needed and use the provided Makefile to
 install using distman:
 
 ```bash
-$ sudo make install
+$ make install
 ```
 
-Requires Python 3.6+.
+The deployment root is defined by `${DEPLOY_ROOT}` which is also defined in the
+provided `subfork.env` file. By default, files are installed in `${PWD}/public`.
 
 ## Setup
 
 In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
 
-Subfork uses [envstack](https://github.com/rsgalloway/envstack) to manage
+Subfork uses [envstack](https://github.com/rsgalloway/envstack) to help manage
 environment variables. Environment variables can be stored in different .env
 files, for example `prod.env`, `dev.env` or `default.env` files. Access keys can
 be stored securely in an .env file (see
@@ -141,6 +142,12 @@ To process queued tasks using workers defined in the [config file](#config-file)
 $ subfork worker
 ```
 
+Or use the `worker` Makefile target for convenience:
+
+```bash
+$ make worker
+```
+
 ## Workers
 
 Task workers are decentralized Python functions that poll task queues for new jobs.
@@ -231,6 +238,7 @@ environment file, but you can easily create different environments, for example
 a `prod.env` environment file, or a `dev.env` environment file:
 
 ```bash
+$ envstack subfork -s SUBFORK_ACCESS_KEY=abc123 SUBFORK_SECRET_KEY=xyz456 -eo dev.env
 $ ./dev.env -- subfork run
 ```
 
@@ -241,7 +249,7 @@ installed using [distman](https://github.com/rsgalloway/distman):
 
 ```bash
 $ pip install -U distman
-$ ./subfork.env -- dist [OPTIONS]
+$ ./prod.env -- dist [OPTIONS]
 ```
 
 The `subfork.env` file defines the `${DEPLOY_ROOT}` environment variable which is

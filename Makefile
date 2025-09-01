@@ -16,15 +16,16 @@
 
 # Define the installation command
 PROJECT := subfork
+ENV ?= ${PROJECT}
 BUILD_DIR := $(CURDIR)/build
 BUILD_CMD := pip install -r requirements.txt -t $(BUILD_DIR)
 DEPLOY_ROOT ?= /etc/${PROJECT}
 
-# envstack command uses ./env for ENVPATH
-ENVSTACK_CMD := ENVPATH=$(CURDIR)/env \
-                PATH=$(BUILD_DIR)/bin:$$PATH \
-                PYTHONPATH=$(BUILD_DIR):$$PYTHONPATH \
-                envstack ${PROJECT}
+# Define the environment stack command
+ENVSTACK_CMD := ENVPATH=$(CURDIR) \
+                PATH=$(BUILD_DIR)/bin:$(CURDIR)/bin:$$PATH \
+                PYTHONPATH=$(BUILD_DIR):$(CURDIR)/lib:$$PYTHONPATH \
+                envstack ${ENV}
 
 # Remove __pycache__ directories from the build directory
 RM_PYCACHE_CMD := find $(BUILD_DIR) -type d -name '__pycache__' -exec rm -rf {} +
@@ -53,8 +54,13 @@ start:
 
 # Run the dev server
 run:
-	@command -v envstack >/dev/null 2>&1 || { echo >&2 "envstack not installed, run make install."; exit 1; }
+	@echo "Running ${PROJECT} development server..."
 	$(ENVSTACK_CMD) -- subfork run
+
+# Run the workers
+worker:
+	@echo "Running ${PROJECT} worker..."
+	$(ENVSTACK_CMD) -- subfork worker
 
 # Install target to install the builds using distman
 install: build

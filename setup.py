@@ -60,7 +60,7 @@ setup(
         "psutil>=5.9.3",
         "PyYAML>=5.4",
         "requests>=2.25.1",
-        "urllib3>=1.26.3",
+        "urllib3>=1.26.2",
     ],
     python_requires=">=3.6",
     zip_safe=False,
