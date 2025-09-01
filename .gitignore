@@ -18,3 +18,5 @@ venv*/
 .vscode/
 template.yml
 keys.env
+prod.env
+dev.env
