@@ -113,15 +113,19 @@ class SubforkHttpClient(object):
         if not self.__auth:
             raise ConfigError("missing auth")
 
-    def _request(self, url: str, data: dict = {}, file_data: Optional[bytes] = None):
+    def _request(
+        self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
+    ):
         """
         Makes an HTTP POST Request with data provided.
 
         :param url: API endpoint url.
-        :param data: request data (must be JSON serializable).
-        :param file_data: binary file data.
+        :param data: request data (optional, must be JSON serializable dict).
+        :param file_data: binary file data (optional).
         :returns: response data.
         """
+        if data is None:
+            data = {}
 
         if file_data:
             if not url.endswith("deploy"):
@@ -283,15 +287,31 @@ class Subfork(object):
     def _set_conn(
         cls, host: str, port: int, api_version: str, access_key: str, secret_key: str
     ):
-        """Establishes a shared server connection."""
+        """Establishes a shared server connection.
+
+        :param host: site domain ($SUBFORK_DOMAIN).
+        :param port: optional site port ($SUBFORK_PORT).
+        :param api_version: api endpoint to use ($SUBFORK_API_VERSION).
+        :param access_key: access key ($SUBFORK_ACCESS_KEY).
+        :param secret_key: secret key ($SUBFORK_SECRET_KEY).
+        :raises ConnectError: if connection could not be established.
+        """
         if not cls.__conn:
             log.info("connecting to %s", host)
             cls.__conn = SubforkHttpClient(
                 host, port, api_version, access_key, secret_key
             )
 
-    def _request(self, url: str, data: dict = {}, file_data: Optional[bytes] = None):
-        """Makes an Http request to the server and returns response data."""
+    def _request(
+        self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
+    ):
+        """Makes an Http request to the server and returns response data.
+
+        :param url: API endpoint url.
+        :param data: request data (optional, must be JSON serializable).
+        :param file_data: binary file data (optional).
+        :returns: response data.
+        """
         return self.conn()._request(url, data, file_data)
 
     def get_data(self, name: str):
