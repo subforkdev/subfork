@@ -54,8 +54,12 @@ class Sample(object):
             "username": username,
         }
 
-    def get_process_info(cls, interval=0):
-        """Samples and returns process info dict."""
+    def get_process_info(cls, interval: int = 0):
+        """Samples and returns process info dict.
+
+        :param interval: how long in seconds to sample cpu data (blocking)
+        :returns: process info dict
+        """
         return {
             "cpu_percent": process.cpu_percent(interval=interval),
             "create_time": process.create_time(),

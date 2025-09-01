@@ -38,13 +38,14 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31m"
     bold_red = "\x1b[31m"
     reset = "\x1b[0m"
+
     if sys.platform == "win32":
         fmt = "[%(asctime)s] - %(name)s - %(module)10s:%(lineno)3d - %(levelname)-7s - %(message)s"
     else:
         fmt = "[%(asctime)s] - %(name)s - %(module)10s:%(lineno)3d - {color}%(levelname)-7s{reset} - %(message)s"
+
     datefmt = "%y-%m-%d %H:%M:%S"
 
-    # TODO: get ANSI escape codes for win32
     FORMATS = {
         logging.DEBUG: blue,
         logging.INFO: green,
@@ -64,7 +65,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def setup_stream_handler(name=__prog__):
+def setup_stream_handler(name: str = __prog__):
     """Adds a new stdout stream handler."""
     for h in log.handlers:
         if h.name == name and "StreamHandler" in str(h):

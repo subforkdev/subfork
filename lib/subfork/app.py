@@ -13,6 +13,7 @@ import signal
 import time
 import webbrowser
 from functools import wraps
+from typing import Callable, Any, Optional
 
 import flask
 
@@ -29,18 +30,28 @@ setup_stream_handler("subfork")
 templates = []
 
 
-def client_required(f, client):
-    """Decorator that passes client to wrapped function."""
+def client_required(f: Callable, client: Any):
+    """Decorator that passes client to wrapped function.
+
+    :param f: function to be wrapped.
+    :param client: Subfork client instance.
+    :returns: decorated function.
+    """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
-        return f(client, **kwargs)
+    def decorated(*args: Any, **kwargs: Any) -> Any:
+        return f(client, *args, **kwargs)
 
     return decorated
 
 
-def catch_all(client, path):
-    """Catch-all page request handler."""
+def catch_all(client, path: Optional[str] = ""):
+    """Catch-all page request handler.
+
+    :param client: Subfork client instance.
+    :param path: requested path.
+    :returns: redirect response to the requested path.
+    """
 
     host = client.conn().host
     redirect_path = f"http://{host}/{path}"
@@ -49,7 +60,12 @@ def catch_all(client, path):
 
 
 def api_request(client, **kwargs):
-    """API endpoint stub handler."""
+    """API endpoint stub handler.
+
+    :param client: Subfork client instance.
+    :param kwargs: url parameters.
+    :returns: json response from the api request.
+    """
 
     data = flask.request.get_json()
     error = None
@@ -91,11 +107,12 @@ def get_session_data(client):
     )
 
 
-def read_page_configs(template_data):
+def read_page_configs(template_data: dict):
     """
     Reads subfork template file and returns route->page map.
 
     :param template_data: subfork template data.
+    :returns: route->page map.
     """
 
     route_map = {}
@@ -131,13 +148,13 @@ def render_wrapper(client, template_folder, template, page_config):
     :param page_config: page config
     """
 
-    def get_user(username):
+    def get_user(username: str):
         user = client.get_user(username)
         if user:
             return user.data()
         return {}
 
-    def render(**kwargs):
+    def render(**kwargs: Any):
         login_required = page_config.get("login_required")
         page_attrs = page_config.get("attrs")
         _, ext = os.path.splitext(template)
@@ -213,7 +230,7 @@ class DevServer(StoppableThread):
         return run_app(self.app, self.host, self.port)
 
 
-def create_app(client, template):
+def create_app(client, template: dict):
     """
     Creates and returns an instance of the dev server for testing.
 
@@ -279,7 +296,7 @@ def create_app(client, template):
     return app
 
 
-def build_app(template):
+def build_app(template: dict):
     """Builds the app files and returns build template file.
 
     :param template: path to subfork template file.
@@ -289,7 +306,7 @@ def build_app(template):
     return build.build(template)
 
 
-def run_app(app, host="localhost", port=8080):
+def run_app(app, host: str = "localhost", port: int = 8080):
     """
     Run the dev server for testing.
 
@@ -315,7 +332,7 @@ def is_running():
     return running
 
 
-def watch_template_files(template):
+def watch_template_files(template: dict):
     """Creates FileWatcher threads to watch for changes on app files.
 
     :param template: app subfork.yml file.
@@ -345,7 +362,7 @@ def watch_template_files(template):
     return watcher_threads
 
 
-def run(client, template, host="localhost", port=8080):
+def run(client, template: dict, host: str = "localhost", port: int = 8080):
     """
     Starts a simple dev server process, and opens a webbrowser to
     the running dev server.

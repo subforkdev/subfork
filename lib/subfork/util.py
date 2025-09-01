@@ -16,6 +16,7 @@ import yaml
 import requests
 import fnmatch
 from functools import wraps
+from typing import Callable
 
 import subfork
 from subfork import config
@@ -43,8 +44,13 @@ HOURS_12 = 43200
 HOURS_24 = 86400
 
 
-def b2h(bytes, format="%(value).1f%(symbol)s"):
-    """Converts bytes to a human readable format."""
+def b2h(bytes: int, format: str = "%(value).1f%(symbol)s"):
+    """Converts bytes to a human readable format.
+
+    :param bytes: number of bytes.
+    :param format: output format string.
+    :returns: formatted string.
+    """
     symbols = ("B", "K", "M", "G", "T")
     prefix = {}
     for i, s in enumerate(symbols[1:]):
@@ -56,8 +62,14 @@ def b2h(bytes, format="%(value).1f%(symbol)s"):
     return format % dict(symbol=symbols[0], value=bytes)
 
 
-def parse_version(version):
-    """Parses a version string and returns a tuple of its components."""
+def parse_version(version: str):
+    """Parses a version string and returns a tuple of its components.
+
+    For example: "1.2.3alpha" -> (1, 2, 3, "alpha")
+
+    :param version: version string.
+    :returns: (major, minor, patch, alpha)
+    """
     match = re.match(VERSION_PATTERN, version)
     if match:
         major = int(match.group(1))
@@ -107,9 +119,12 @@ def check_version():
     return
 
 
-def checksum(path):
-    """Returns an MD5 checksum for a given filepath."""
+def checksum(path: str):
+    """Returns an MD5 checksum for a given filepath.
 
+    :param path: file or directory path.
+    :returns: MD5 checksum string.
+    """
     import hashlib
 
     md5_hash = hashlib.md5()
@@ -125,7 +140,7 @@ def checksum(path):
     return md5_hash.hexdigest()
 
 
-def get_templates(folder, noext=False):
+def get_templates(folder: str, noext: bool = False):
     """
     For a given folder, return a list of template file definitions
     as a dict that include the relative path to the file, and an
@@ -187,9 +202,13 @@ def get_templates(folder, noext=False):
     return templates
 
 
-def create_zip_file(targets, outfile=None):
-    """Creates a zip file for a given list of target dirs."""
+def create_zip_file(targets: list, outfile: str = None):
+    """Creates a zip file for a given list of target dirs.
 
+    :param targets: list of target directories.
+    :param outfile: output zip file path.
+    :returns: output zip file path.
+    """
     import zipfile
 
     def zipdir(path, ziph):
@@ -210,8 +229,12 @@ def create_zip_file(targets, outfile=None):
     return outfile
 
 
-def deprecated(f):
-    """Decorator that logs deprecation warning."""
+def deprecated(f: Callable):
+    """Decorator that logs deprecation warning.
+
+    :param f: function to decorate.
+    :returns: decorated function.
+    """
 
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -221,9 +244,12 @@ def deprecated(f):
     return decorated
 
 
-def encodeurl(params):
-    """python 2/3 compatible url encoder."""
+def encodeurl(params: dict):
+    """python 2/3 compatible url encoder.
 
+    :param params: dict of url params.
+    :returns: url encoded string.
+    """
     try:
         from urllib.parse import urlencode
     except Exception:
@@ -232,9 +258,13 @@ def encodeurl(params):
     return urlencode(params)
 
 
-def get_client(host=config.HOST, port=config.PORT):
-    """Returns a client connection object."""
+def get_client(host: str = config.HOST, port: int = config.PORT):
+    """Returns a client connection object.
 
+    :param host: server host.
+    :param port: server port.
+    :returns: Subfork client object.
+    """
     try:
         return subfork.Subfork(
             host=host,
@@ -248,9 +278,12 @@ def get_client(host=config.HOST, port=config.PORT):
         raise
 
 
-def get_mime_type(filename):
-    """Returns the MIME type for a given filename."""
+def get_mime_type(filename: str):
+    """Returns the MIME type for a given filename.
 
+    :param filename: file name or path.
+    :returns: MIME type string.
+    """
     import mimetypes
 
     mime_types = {
@@ -282,8 +315,12 @@ def get_session_id():
     return str(uuid.uuid4())
 
 
-def get_status_message(status_code):
-    """Returns a status code message."""
+def get_status_message(status_code: int):
+    """Returns a status code message.
+
+    :param status_code: HTTP status code.
+    :returns: status message.
+    """
     return {
         400: "bad request",
         401: "unauthorized",
@@ -314,18 +351,25 @@ def get_version():
     return __version__
 
 
-def is_ignorable(path):
-    """Returns True if path is ignorable (includes dot files)."""
+def is_ignorable(path: str):
+    """Returns True if path is ignorable (includes dot files).
 
+    :param path: file or directory path.
+    :returns: True if path is ignorable.
+    """
     if path.startswith("."):
         return True
 
     return re.search(IGNORABLE_PATHS, path) is not None
 
 
-def is_subpath(filepath, directory):
+def is_subpath(filepath: str, directory: str):
     """
     Returns True if both `filepath` and `directory` have a common prefix.
+
+    :param filepath: file path.
+    :param directory: directory path.
+    :returns: True if `filepath` is a subpath of `directory`.
     """
 
     d = os.path.join(os.path.realpath(directory), "")
@@ -334,21 +378,27 @@ def is_subpath(filepath, directory):
     return os.path.commonprefix([f, d]) == d
 
 
-def minify(src, dst):
-    """Minify a given src file and output to a dst file."""
+def minify(src: str, dst: str):
+    """Minify a given src file and output to a dst file.
 
+    :param src: source file path.
+    :param dst: destination file path.
+    """
     minimized_src = minify_file(src)
 
     if minimized_src:
-        fp = open(dst, "w")
-        fp.write(minimized_src)
-        fp.close()
+        with open(dst, "w") as fp:
+            fp.write(minimized_src)
     else:
-        print("error minify'ing source")
+        log.warning("could not minify %s", src)
 
 
-def minify_file(filepath):
-    """Returns minified file contents."""
+def minify_file(filepath: str):
+    """Returns minified file contents.
+
+    :param filepath: file path.
+    :returns: minified file contents.
+    """
     minified = ""
 
     if not os.path.exists(filepath):
@@ -367,8 +417,13 @@ def minify_file(filepath):
     return minified
 
 
-def normalize_path(path, start=os.getcwd()):
-    """Returns a normalized path."""
+def normalize_path(path: str, start: str = os.getcwd()):
+    """Returns a normalized path.
+
+    :param path: file or directory path.
+    :param start: start path for relative paths.
+    :returns: normalized path.
+    """
 
     npath = os.path.normpath(path)
 
@@ -378,8 +433,12 @@ def normalize_path(path, start=os.getcwd()):
     return os.path.abspath(npath).replace("\\", "/")
 
 
-def _read_file(filepath):
-    """File reader data generator."""
+def _read_file(filepath: str):
+    """File reader data generator.
+
+    :param filepath: file path.
+    :yields: binary data chunks.
+    """
 
     start = time.time()
     limit = 10  # secs
@@ -394,8 +453,12 @@ def _read_file(filepath):
             yield data
 
 
-def read_file(filepath):
-    """File reader data."""
+def read_file(filepath: str):
+    """File reader data.
+
+    :param filepath: file path.
+    :returns: binary data.
+    """
 
     binary_content = b""
 
@@ -423,14 +486,13 @@ def read_template(template_file):
     return data
 
 
-def sanitize_data(data, default={}):
+def sanitize_data(data: dict, default: dict = {}):
     """
     Validates data. Returns input data or an empty dict.
 
     :param data: data dict to sanitize.
     :param default: default value if data is None.
     """
-
     try:
         if data is None:
             data = default
@@ -456,13 +518,12 @@ def sanitize_data(data, default={}):
     return data
 
 
-def splitext(src):
+def splitext(src: str):
     """Returns tuple of relative file path and file extension.
 
     :param src: source file path.
     :returns: (rel file path, file extension).
     """
-
     try:
         name = src.split(CWD)[-1]
 
@@ -473,13 +534,12 @@ def splitext(src):
     return name, ext
 
 
-def walk(path):
+def walk(path: str):
     """Generator that yields found filepaths.
 
     :param path: path to walk.
     :yields: filenames.
     """
-
     if not is_ignorable(path) and os.path.isfile(path):
         yield path
 
@@ -495,31 +555,29 @@ def walk(path):
                 yield os.path.join(dirname, name)
 
 
-def write_file(filepath, contents):
+def write_file(filepath: str, contents: str):
     """Writes text content to a filepath.
 
     :param filepath: output file path.
     :param contents: template data dict.
+    :returns: True if successful.
     """
-
     dirname = os.path.dirname(filepath)
     if dirname and not os.path.isdir(dirname):
         os.makedirs(dirname)
 
-    fp = open(filepath, "w")
-    fp.write(contents)
-    fp.close()
+    with open(filepath, "w") as fp:
+        fp.write(contents)
 
     return True
 
 
-def write_template(filepath, contents):
+def write_template(filepath: str, contents: str):
     """Writes template data to filepath.
 
     :param filepath: output file path.
     :param contents: template data dict.
     """
-
     return write_file(
         filepath=filepath,
         contents=yaml.dump(contents, default_flow_style=False, sort_keys=False),

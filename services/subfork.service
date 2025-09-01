@@ -1,0 +1,17 @@
+[Unit]
+Description=Subfork Worker
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=__DEPLOY_ROOT__
+ExecStart=__DEPLOY_ROOT__/bin/subfork worker
+Restart=always
+RestartSec=10
+Environment=ENVPATH=__DEPLOY_ROOT__/env
+Environment=PYTHONPATH=__DEPLOY_ROOT__/lib/python
+Environment=PATH=__DEPLOY_ROOT__/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target

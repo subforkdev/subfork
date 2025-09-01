@@ -2,24 +2,45 @@
     "author": "ryan@rsg.io",
     "targets": {
         "bin": {
-            "source": "bin/subfork",
-            "destination": "{DEPLOY_ROOT}/bin/subfork"
+            "source": "build/bin/*",
+            "destination": "{DEPLOY_ROOT}/bin/%1",
+            "options": {"match": "content"}
         },
-        "bat": {
-            "source": "bin/subfork.bat",
-            "destination": "{DEPLOY_ROOT}/bin/subfork.bat"
-        },
-        "lib": {
-            "source": "lib/subfork",
-            "destination": "{DEPLOY_ROOT}/lib/python/subfork"
+        "build": {
+            "source": "build/*",
+            "destination": "{DEPLOY_ROOT}/lib/python/%1",
+            "options": {"match": "content"}
         },
         "config": {
             "source": "subfork.yml",
-            "destination": "{DEPLOY_ROOT}/conf/subfork.yml"
+            "destination": "{DEPLOY_ROOT}/subfork.yml"
+        },
+        "services": {
+            "source": "services",
+            "destination": "{DEPLOY_ROOT}/services/subfork",
+            "pipeline": {
+                "replace_tokens": {
+                    "func": "distman.transform.replace_tokens",
+                    "options": {
+                        "tokens": {
+                            "__DEPLOY_ROOT__": "{DEPLOY_ROOT}" 
+                        }
+                    }
+                }
+            }
         },
         "env": {
             "source": "subfork.env",
             "destination": "{DEPLOY_ROOT}/env/subfork.env"
+        },
+        "subfork": {
+            "source": "bin/*",
+            "destination": "{DEPLOY_ROOT}/bin/%1",
+            "options": {"match": "content"}
+        },
+        "lib": {
+            "source": "lib/subfork",
+            "destination": "{DEPLOY_ROOT}/lib/python/subfork"
         }
     }
 }

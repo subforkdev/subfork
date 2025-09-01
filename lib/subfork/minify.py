@@ -13,8 +13,12 @@ import re
 from subfork.logger import log
 
 
-def minify(src, dst):
-    """Minify a given src file and output to a dst file."""
+def minify(src: str, dst: str):
+    """Minify a given src file and output to a dst file.
+
+    :param src: path to the source file to be minified
+    :param dst: path to the destination file to write the minified content
+    """
 
     minimized = minify_file(src)
 
@@ -26,8 +30,12 @@ def minify(src, dst):
         log.error("minify error")
 
 
-def minify_css(src):
-    """Returns minified css source."""
+def minify_css(src: str):
+    """Returns minified css source.
+
+    :param src: path to the css file to be minified
+    :return: minified css source code
+    """
 
     minified = ""
 
@@ -42,8 +50,12 @@ def minify_css(src):
     return minified
 
 
-def minify_js(src):
-    """Returns minified js source code."""
+def minify_js(src: str):
+    """Returns minified js source code.
+
+    :param src: path to the js file to be minified
+    :return: minified js source code
+    """
 
     minified = ""
 
@@ -55,8 +67,12 @@ def minify_js(src):
     return minified
 
 
-def minify_file(filepath):
-    """Returns minified file contents."""
+def minify_file(filepath: str):
+    """Returns minified file contents.
+
+    :param filepath: path to the file to be minified
+    :return: minified file contents
+    """
 
     minified = ""
 

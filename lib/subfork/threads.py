@@ -10,13 +10,15 @@ Contains threading classes and functions.
 import os
 import time
 import threading
+from typing import Callable, Optional
 
 from subfork import config
 from subfork import sample
 from subfork import util
 from subfork.logger import log
 
-FILE_WATCHER_WAIT_TIME = 3  # seconds
+# time to wait between file checks in seconds
+FILE_WATCHER_WAIT_TIME = 3
 
 
 class StoppableThread(threading.Thread):
@@ -40,7 +42,12 @@ class StoppableThread(threading.Thread):
 class FileWatcher(StoppableThread):
     """Watches for file changes and runs a callback function."""
 
-    def __init__(self, filepath, callback=None, kwargs={}):
+    def __init__(
+        self,
+        filepath: str,
+        callback: Optional[Callable] = None,
+        kwargs: Optional[dict] = None,
+    ):
         """
         :param filepath: filepath to watch.
         :param callback: callback function (called when file changes).
@@ -49,7 +56,7 @@ class FileWatcher(StoppableThread):
         super(FileWatcher, self).__init__()
         self.filepath = filepath
         self.callback = callback
-        self.kwargs = kwargs
+        self.kwargs = kwargs or {}
         self.wait_time = FILE_WATCHER_WAIT_TIME
         self.start_time = util.get_time()
         self.last_modified = None
@@ -108,8 +115,10 @@ class FileWatcher(StoppableThread):
 class HealthCheck(StoppableThread):
     """Runs health checks on a given host and logs updates."""
 
-    def __init__(self, client, wait_time=config.WAIT_TIME):
+    def __init__(self, client, wait_time: Optional[int] = config.WAIT_TIME):
         """
+        Creates a HealthCheck thread instance.
+
         :param client: subfork client instance.
         :param wait_time: interval in seconds between checks.
         """

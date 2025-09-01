@@ -15,7 +15,9 @@ from subfork import util
 from subfork.logger import log
 
 
-def deploy(client, template_file, comment, release=False, force=False):
+def deploy(
+    client, template_file: str, comment: str, release: bool = False, force: bool = False
+):
     """
     Deploy a site build.
 
@@ -48,7 +50,7 @@ def deploy(client, template_file, comment, release=False, force=False):
     return None
 
 
-def create_archive(build_root, filename="subfork.zip"):
+def create_archive(build_root: str, filename: str = "subfork.zip"):
     """Creates an archive file of a given build for deployment.
 
     :param build_root: a given build folder
@@ -74,11 +76,11 @@ def create_archive(build_root, filename="subfork.zip"):
 
 def deploy_build(
     client,
-    build_root,
-    comment,
-    release=False,
-    force=False,
-    wait=True,
+    build_root: str,
+    comment: str,
+    release: bool = False,
+    force: bool = False,
+    wait: bool = True,
 ):
     """Deploy a site template.
 
@@ -88,6 +90,7 @@ def deploy_build(
     :param release: release version (optional)
     :param force: force upload (optional)
     :param wait: wait for deployment to complete (optional)
+    :returns: response from the deployment
     """
 
     log.info("deploying %s", build_root)

@@ -13,11 +13,13 @@ import json
 import time
 import signal
 import inspect
+from typing import Callable
 
 from subfork import config
 from subfork import sample
 from subfork import threads
 from subfork import util
+from subfork.api.task import Task
 from subfork.logger import log
 
 
@@ -25,7 +27,12 @@ class Worker(threads.StoppableThread):
     """Thread that dequeues tasks and spawns runners."""
 
     def __init__(
-        self, client, queue_name, func_name, limit=1, wait_time=config.WAIT_TIME
+        self,
+        client,
+        queue_name: str,
+        func_name: str,
+        limit: int = 1,
+        wait_time: int = config.WAIT_TIME,
     ):
         super(Worker, self).__init__()
         self.client = client
@@ -38,22 +45,21 @@ class Worker(threads.StoppableThread):
         self.version = util.get_version()
 
     def get_tasks(
-        self, chunk_size=config.TASK_BATCH_SIZE, throttle=config.TASK_RATE_THROTTLE
+        self,
+        chunk_size: int = config.TASK_BATCH_SIZE,
+        throttle: int = config.TASK_RATE_THROTTLE,
     ):
         """Generator that yields tasks from the queue in chunks."""
 
         queue_size = self.queue.length()
         task_num = 0
 
-        # TODO: reduce chunk size if CPU % too high
         for _ in range(min((queue_size or 0), chunk_size)):
-            # TODO: batch dequeue limit=N tasks (one request vs many)
             task = self.queue.dequeue_task()
             if not task:
                 continue
             task_num += 1
             yield (task_num, task)
-            # TODO: dynamically increase throttle if CPU % too high
             time.sleep(throttle)
 
     def run(self):
@@ -71,7 +77,7 @@ class Worker(threads.StoppableThread):
 class TaskRunner(threads.StoppableThread):
     """Thread that runs task function."""
 
-    def __init__(self, parent, task, task_num=1):
+    def __init__(self, parent, task: Task, task_num: int = 1):
         super(TaskRunner, self).__init__()
         self.name = "%s worker %s" % (task.queue.name, task_num)
         self.parent = parent
@@ -109,7 +115,7 @@ class TaskRunner(threads.StoppableThread):
         return samp
 
 
-def validate_worker_input(func, input_data):
+def validate_worker_input(func: Callable, input_data: dict):
     """
     Validate the input data is compatible with the expected input
     of the worker function.
@@ -143,7 +149,7 @@ def validate_worker_input(func, input_data):
     return is_valid
 
 
-def import_function(func_name):
+def import_function(func_name: str):
     """
     Imports a Python function with a given import path.
 
@@ -168,7 +174,7 @@ def import_function(func_name):
     return mod, func
 
 
-def process_task(runner, task):
+def process_task(runner: TaskRunner, task: Task):
     """
     Executes task function, updates task, and returns exit code.
 
@@ -262,7 +268,6 @@ def process_task(runner, task):
             log.warning("task not saved")
 
         # requeue task if within retry limit and the data input was valid
-        # TODO: only requeue certain errors
         if not success and (num_failures < runner.limit) and input_is_valid:
             log.info("requeueing: %s", task)
             resp = task.requeue()
@@ -277,7 +282,13 @@ def process_task(runner, task):
     return exitcode
 
 
-def create_workers(client, queue_name, func_name, limit=1, wait_time=config.WAIT_TIME):
+def create_workers(
+    client,
+    queue_name: str,
+    func_name: str,
+    limit: int = 1,
+    wait_time: int = config.WAIT_TIME,
+):
     """
     Creates and starts workers.
 
@@ -343,7 +354,7 @@ def is_running():
     return running
 
 
-def validate_worker_config(worker_config):
+def validate_worker_config(worker_config: dict):
     """
     Validates a given worker config.
 
@@ -382,7 +393,9 @@ def validate_worker_config(worker_config):
     return True
 
 
-def run_workers(client, worker_configs, autorestart=config.AUTO_RESTART_WORKERS):
+def run_workers(
+    client, worker_configs: dict, autorestart: bool = config.AUTO_RESTART_WORKERS
+):
     """
     Main thread that spawns workers.
 
@@ -460,7 +473,7 @@ def echo(**kwargs):
     return {"message": "there was an error"}
 
 
-def stress(t=5):
+def stress(t: int = 5):
     """Stress test example worker. Available params:
 
     :param t: time in secs to run.
