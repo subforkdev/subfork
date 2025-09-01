@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import sys
+from typing import Optional, Tuple
 
 import requests
 import subfork.config as config
@@ -58,11 +59,11 @@ class SubforkHttpClient(object):
 
     def __init__(
         self,
-        host=config.HOST,
-        port=config.PORT,
-        api_version=config.API_VERSION,
-        access_key=config.ACCESS_KEY,
-        secret_key=config.SECRET_KEY,
+        host: str = config.HOST,
+        port: int = config.PORT,
+        api_version: str = config.API_VERSION,
+        access_key: str = config.ACCESS_KEY,
+        secret_key: str = config.SECRET_KEY,
     ):
         """
         Instantiates an instance of the Subfork Http client.
@@ -92,7 +93,7 @@ class SubforkHttpClient(object):
     def __get_auth(self):
         return self.__auth
 
-    def __set_auth(self, auth):
+    def __set_auth(self, auth: Tuple[Optional[str], Optional[str]]):
         access_key, secret_key = auth
         self.__auth = (
             access_key,
@@ -112,7 +113,7 @@ class SubforkHttpClient(object):
         if not self.__auth:
             raise ConfigError("missing auth")
 
-    def _request(self, url, data={}, file_data=None):
+    def _request(self, url: str, data: dict = {}, file_data: Optional[bytes] = None):
         """
         Makes an HTTP POST Request with data provided.
 
@@ -164,18 +165,18 @@ class SubforkHttpClient(object):
             log.debug(self.last_error)
         return
 
-    def format_base_url(self, host, port=None):
+    def format_base_url(self, host: str, port: Optional[int] = None):
         """Returns formatted base url for API requests for a given host and
         port (optional). Uses http for the protocol."""
         if host == "localhost":
             return f"http://localhost:{port}"
         return f"https://{host}"
 
-    def format_url(self, url):
+    def format_url(self, url: str):
         """Returns a formatted api request url."""
         return "/".join([self.api_url, url])
 
-    def handle_response(self, resp):
+    def handle_response(self, resp: Optional[requests.Response]):
         """Request response handler."""
         if resp is None:
             log.warning("no response from server")
@@ -230,16 +231,17 @@ class Subfork(object):
     """
     Subfork API client class.
 
-    Usage:
+    Instantiate client:
 
-        # instantiate client
         >>> import subfork
         >>> sf = subfork.get_client()
 
-        # get page
+    Get page info:
+
         >>> page = sf.get_page("test.html")
 
-        # find data
+    Find data in a datatype:
+
         >>> dt = sf.get_data("test")
         >>> params = [["foo", "=", "bar"]]
         >>> data = dt.find(params)
@@ -251,11 +253,11 @@ class Subfork(object):
 
     def __init__(
         self,
-        host=config.HOST,
-        port=config.PORT,
-        api_version=config.API_VERSION,
-        access_key=config.ACCESS_KEY,
-        secret_key=config.SECRET_KEY,
+        host: str = config.HOST,
+        port: int = config.PORT,
+        api_version: str = config.API_VERSION,
+        access_key: str = config.ACCESS_KEY,
+        secret_key: str = config.SECRET_KEY,
     ):
         """
         Instantiates an instance of the Subfork API client.
@@ -278,7 +280,9 @@ class Subfork(object):
         return cls.__conn
 
     @classmethod
-    def _set_conn(cls, host, port, api_version, access_key, secret_key):
+    def _set_conn(
+        cls, host: str, port: int, api_version: str, access_key: str, secret_key: str
+    ):
         """Establishes a shared server connection."""
         if not cls.__conn:
             log.info("connecting to %s", host)
@@ -286,11 +290,11 @@ class Subfork(object):
                 host, port, api_version, access_key, secret_key
             )
 
-    def _request(self, url, data={}, file_data=None):
+    def _request(self, url: str, data: dict = {}, file_data: Optional[bytes] = None):
         """Makes an Http request to the server and returns response data."""
         return self.conn()._request(url, data, file_data)
 
-    def get_data(self, name):
+    def get_data(self, name: str):
         """
         Returns a Datatype object.
 
@@ -299,7 +303,7 @@ class Subfork(object):
         """
         return self.site().get_data(name)
 
-    def get_page(self, name):
+    def get_page(self, name: str):
         """
         Returns a Page object matching `name`.
 
@@ -311,7 +315,7 @@ class Subfork(object):
         """
         return self.site().get_page(name)
 
-    def get_queue(self, name):
+    def get_queue(self, name: str):
         """
         Returns a Task Queue object.
 
@@ -323,7 +327,7 @@ class Subfork(object):
         """
         return self.site().get_queue(name)
 
-    def get_user(self, username):
+    def get_user(self, username: str):
         """
         Returns a subfork site user matching a given username.
 

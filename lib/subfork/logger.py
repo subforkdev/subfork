@@ -64,7 +64,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def setup_stream_handler(name=__prog__):
+def setup_stream_handler(name: str = __prog__):
     """Adds a new stdout stream handler."""
     for h in log.handlers:
         if h.name == name and "StreamHandler" in str(h):

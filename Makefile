@@ -42,13 +42,17 @@ dryrun:
 	$(ENVSTACK_CMD) -- dist --force --dryrun
 
 # Start the systemd service
-start: build
+start: install
 	@echo "Starting ${PROJECT} service..."
 	$(ENVSTACK_CMD) -- ln -sfn {DEPLOY_ROOT}/services/${PROJECT}/${PROJECT}.service \
 		/etc/systemd/system/${PROJECT}.service
 	sudo systemctl enable ${PROJECT} || true
 	systemctl daemon-reload || true
 	sudo systemctl restart ${PROJECT} || sudo systemctl start ${PROJECT}
+
+# Run the dev server
+run:
+	$(ENVSTACK_CMD) -- subfork run
 
 # Install target to install the builds using distman
 install: build

@@ -36,7 +36,9 @@ class LinkParser(HTMLParser):
                     self.links.append(value)
 
 
-def replace_links(src, dst, static_files, static_folder="static"):
+def replace_links(
+    src: str, dst: str, static_files: list, static_folder: str = "static"
+):
     """Takes an input `src` file and replaces local static file links with
     new links that reference the static files location. Writes a modified
     file with updated links to `dst`.
@@ -66,7 +68,7 @@ def replace_links(src, dst, static_files, static_folder="static"):
     outfile.close()
 
 
-def copy_file(src, dst, minimize=config.AUTO_MINIMIZE):
+def copy_file(src: str, dst: str, minimize: bool = config.AUTO_MINIMIZE):
     """Copies a file, with optional minimization of js and css files.
 
     :param src: source file path.
@@ -111,7 +113,9 @@ def copy_file(src, dst, minimize=config.AUTO_MINIMIZE):
     return dst
 
 
-def create_template(filepath, template_folder, static_folder, templates, **kwargs):
+def create_template(
+    filepath: str, template_folder: str, static_folder: str, templates: list, **kwargs
+):
     """Creates a new config file.
 
     :param filepath: output path config file.
@@ -142,7 +146,7 @@ def create_template(filepath, template_folder, static_folder, templates, **kwarg
     return util.write_template(filepath, template_data)
 
 
-def create_build_template(source, build_root):
+def create_build_template(source: str, build_root: str):
     """Creates a template.yml build file.
 
     :param source: path to subfork.yml.
@@ -166,7 +170,7 @@ def create_build_template(source, build_root):
     )
 
 
-def build(template_file, build_root=None, update_links=True):
+def build(template_file: str, build_root: str = None, update_links: bool = True):
     """Creates a build directory for a given site. The build directory
     has the following structure:
 

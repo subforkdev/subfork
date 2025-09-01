@@ -13,8 +13,14 @@ falsy = [False, "False", "false", 0, "0", "null", "no"]
 truthy = [True, "True", "true", 1, "1", "yes"]
 
 
-def get_config(key, default=None, dataclass=None):
-    """Returns config setting from the environment then config file."""
+def get_config(key: str, default: str = None, dataclass: type = None):
+    """Returns config setting from the environment then config file.
+
+    :param key: config key name.
+    :param default: default value if not found.
+    :param dataclass: type to cast the value to (str, int, bool, etc).
+    :returns: config value.
+    """
 
     env_key = "_".join(["SUBFORK", key.upper()])
     value = os.getenv(env_key, settings.get(key, default))
@@ -45,7 +51,7 @@ def get_config_file():
     return os.getenv("SUBFORK_CONFIG_FILE", config_file)
 
 
-def load_file(filename):
+def load_file(filename: str):
     """Reads a given subfork template file and returns data dict.
     Automatically expands embedded environment variables.
 
