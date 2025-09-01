@@ -6,6 +6,7 @@
 #   make clean     - Removes all build artifacts
 #   make build     - Builds the requirements for Linux
 #   make install   - Installs the build artifacts using distman
+#   make run       - Runs the development server
 #   make start	   - Starts the systemd service
 #
 # Requirements:
@@ -42,7 +43,7 @@ dryrun:
 	$(ENVSTACK_CMD) -- dist --force --dryrun
 
 # Start the systemd service
-start: install
+start:
 	@echo "Starting ${PROJECT} service..."
 	$(ENVSTACK_CMD) -- ln -sfn {DEPLOY_ROOT}/services/${PROJECT}/${PROJECT}.service \
 		/etc/systemd/system/${PROJECT}.service
@@ -59,7 +60,6 @@ run:
 install: build
 	@echo "Installing ${PROJECT} using distman..."
 	$(ENVSTACK_CMD) -- dist --yes
-	$(MAKE) start
 
 # Phony targets
-.PHONY: build dryrun install clean start
+.PHONY: build dryrun install clean run start

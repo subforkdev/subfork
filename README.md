@@ -20,14 +20,22 @@ This package provides the Subfork Python API and command line interface.
 
 The easiest way to install:
 
-```shell
+```bash
 $ pip install -U subfork
 ```
 
-Source code:
+Installing from source:
 
-```shell
+```bash
 $ git clone https://github.com/subforkdev/subfork
+$ cd subfork
+$ pip install .
+```
+
+Or use the provided Makefile to install using distman:
+
+```bash
+$ sudo make install
 ```
 
 Requires Python 3.6+.
@@ -50,7 +58,7 @@ $ envstack keys -eo secrets.env
 
 Or to use environment variables without .env files, set the following:
 
-```shell
+```bash
 $ export SUBFORK_ACCESS_KEY=<access key>
 $ export SUBFORK_SECRET_KEY=<secret key>
 ```
@@ -58,7 +66,7 @@ $ export SUBFORK_SECRET_KEY=<secret key>
 Modify the `subfork.yml` [config file](#config-file) at the root of your project
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
-```shell
+```bash
 $ export SUBFORK_CONFIG_FILE=/etc/subfork/conf/subfork.yml
 ```
 
@@ -106,7 +114,7 @@ results = site.get_data("bookings").update(data["id"], data)
 To create a `subfork.yml` [config file](#config-file) from existing html templates
 and static files:
 
-```shell
+```bash
 $ subfork create -t <templates folder> -s <static folder>
 ```
 
@@ -116,19 +124,19 @@ Be sure to update the values in the new `subfork.yml` if necessary.
 
 To test a site locally using the dev server:
 
-```shell
+```bash
 $ subfork run
 ```
 
 To deploy and release a site:
 
-```shell
+```bash
 $ subfork deploy -c "initial deployment" --release
 ```
 
 To process queued tasks using workers defined in the [config file](#config-file):
 
-```shell
+```bash
 $ subfork worker
 ```
 
@@ -143,7 +151,7 @@ from the `test` queue and returns a string.
 
 To run a worker that pulls jobs from the `test` queue and runs the test function:
 
-```shell
+```bash
 $ subfork worker --queue test --func subfork.worker.test
 ```
 
@@ -170,7 +178,7 @@ Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 The `subfork.yml` config file contains required auth info, page templates,
 routes (or endpoints), static files and task worker definitions.
 
-```shell
+```bash
 $ curl -o subfork.yml https://raw.githubusercontent.com/subforkdev/master/subfork.yml
 ```
 
@@ -220,19 +228,19 @@ $ ./dev.env -- subfork run
 File distribution can be optionally managed using the `dist.json` file and
 installed using [distman](https://github.com/rsgalloway/distman):
 
-```shell
+```bash
 $ pip install -U distman
-$ ./subfork.env -- distman [OPTIONS]
+$ ./subfork.env -- dist [OPTIONS]
 ```
 
-The `subfork.env` file defines the `${ROOT}` environment variable which is used
-by distman for deployment.
+The `subfork.env` file defines the `${DEPLOY_ROOT}` environment variable which is
+used by distman for deployment.
 
 ## Demo
 
 See [test.fork.io](https://test.fork.io) for an example of a simple demo site,
 or get the source code here:
 
-```shell
+```bash
 $ git clone https://github.com/subforkdev/test.fork.io
 ```
