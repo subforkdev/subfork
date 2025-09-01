@@ -58,7 +58,7 @@ setup(
     install_requires=[
         "jsmin==3.0.1",
         "psutil==5.9.3",
-        "PyYAML==5.3.1",
+        "PyYAML==5.4",
         "requests==2.25.1",
         "urllib3==1.26.3",
     ],
