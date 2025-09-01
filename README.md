@@ -174,6 +174,16 @@ task = queue.create_task({"t": 1})
 
 Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 
+#### systemd
+
+For convenience, a systemd service file is included that can run workers defined
+in the `subfork.yml` config file as a service. The Makefile has a `start` target
+defined to install and run the service after the install step:
+
+```bash
+$ sudo make start
+```
+
 ## Config File
 
 The `subfork.yml` config file contains required auth info, page templates,
