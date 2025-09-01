@@ -13,7 +13,7 @@
         },
         "config": {
             "source": "subfork.yml",
-            "destination": "{DEPLOY_ROOT}/conf/subfork.yml"
+            "destination": "{DEPLOY_ROOT}/subfork.yml"
         },
         "services": {
             "source": "services",
