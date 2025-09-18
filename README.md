@@ -196,10 +196,6 @@ $ sudo make start
 The `subfork.yml` config file contains required auth info, page templates,
 routes (or endpoints), static files and task worker definitions.
 
-```bash
-$ curl -o subfork.yml https://raw.githubusercontent.com/subforkdev/master/subfork.yml
-```
-
 The example config file contains two endpoints and a worker:
 
 ```yaml
