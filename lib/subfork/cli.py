@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -13,6 +13,7 @@ import sys
 import subfork.config as config
 
 from subfork import util
+from subfork.client import ClientError, ConfigError, ConnectError
 from subfork.version import __prog__, __version__
 
 
@@ -242,7 +243,15 @@ def main():
     elif args.which == "worker":
         from subfork.worker import run_workers
 
-        client = util.get_client(args.host, args.port)
+        try:
+            client = util.get_client(args.host, args.port)
+        except ConfigError as e:
+            print(f"config error: {e}")
+            return 1
+        except (ClientError, ConnectError) as e:
+            print(f"cannot connect to host {args.host}: {e}")
+            return 1
+
         worker_config = config.get_config("workers")
 
         if args.queue and args.func:

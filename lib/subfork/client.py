@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -10,8 +10,9 @@ Contains client classes and functions.
 import hashlib
 import json
 import re
+import socketio
 import sys
-from typing import Optional, Tuple
+from typing import Callable, Any, Optional, Tuple
 
 import requests
 import subfork.config as config
@@ -49,8 +50,7 @@ class RequestError(Exception):
 
 
 class SubforkHttpClient(object):
-    """General purpose HTTP Client for interacting with
-    the Subfork REST API."""
+    """General purpose HTTP Client for interacting with the Subfork REST API."""
 
     last_error = None
     last_request_ts = 0
@@ -80,8 +80,12 @@ class SubforkHttpClient(object):
         self.base_url = self.format_base_url(host, port)
         self.api_url = self.base_url + "/" + api_version
         self.auth = (access_key, secret_key)
+        self.sessionid = None
+        self.token = None
+        self.connected = False
         self.headers = {
             "sid": None,
+            "token": None,
             "user-agent": f"python-{__prog__}/{__version__}",
         }
         self.check_config()
@@ -165,8 +169,8 @@ class SubforkHttpClient(object):
             log.warning("request error: %s", e)
         except requests.exceptions.ConnectionError as e:
             self.last_error = str(e)
-            log.warning("could not connect to host: %s", self.host)
             log.debug(self.last_error)
+            log.warning("could not connect to host: %s", self.host)
         return
 
     def format_base_url(self, host: str, port: Optional[int] = None):
@@ -192,6 +196,8 @@ class SubforkHttpClient(object):
                 data = resp.json()
                 if not data.get("success"):
                     log.warning(data.get("error", "there was a server error"))
+                else:
+                    self.connected = True
                 return data.get("data", None)
             except Exception:
                 log.debug(resp.content)
@@ -219,7 +225,17 @@ class SubforkHttpClient(object):
         )
         if self.session and self.session.get("sessionid"):
             self.sessionid = str(self.session["sessionid"])
-        self.headers["sid"] = self.sessionid
+        if self.session and self.session.get("token"):
+            self.token = self.session.get("token")
+        self.headers.update(
+            {
+                "sid": self.sessionid,
+                "Authorization": f"Bearer {self.token}",
+                "user-agent": f"subfork-python/{__version__}",
+                "x-client": "subfork-python",
+                "x-client-version": __version__,
+            }
+        )
         return self.session
 
     def get_session_token(self):
@@ -229,6 +245,111 @@ class SubforkHttpClient(object):
         if self.session:
             self.sessionid = str(self.session.get("sessionid"))
         return self.sessionid
+
+
+class SubforkWsClient:
+    """WebSocket/Socket.IO client for workers and event listeners."""
+
+    def __init__(
+        self,
+        http_client: SubforkHttpClient,
+        url: str = config.EVENTS_URL,
+    ):
+        """
+        :param http_client: An existing SubforkHttpClient
+        :param url: Events base URL
+        """
+        self.http_client = http_client
+        self.url = url.rstrip("/")
+        self._sio = socketio.Client(reconnection=True)
+        self.connected = False
+
+        # get session data
+        sid = self.http_client.get_session_token()
+        token = self.http_client.session.get("token")
+        if not sid:
+            raise ConnectError(
+                "No session id available; ensure get_session_data() succeeded."
+            )
+        if not token:
+            raise ConnectError(
+                "No token available; ensure get_session_data() succeeded."
+            )
+
+        # default headers
+        headers = {
+            "sid": sid,
+            "Authorization": f"Bearer {token}",
+            "user-agent": self.http_client.headers.get("user-agent", "subfork-python"),
+        }
+        self._connect_kwargs = {
+            "headers": headers,
+            "auth": {"token": token},
+            "socketio_path": config.SOCKETIO_PATH,
+            "transports": ["websocket"],
+        }
+
+        # lifecycle hooks
+        @self._sio.event
+        def connect():
+            self.connected = True
+            log.debug("SubforkWsClient: connected to %s", self.url)
+
+        @self._sio.event
+        def disconnect():
+            self.connected = False
+            log.debug("SubforkWsClient: disconnected from %s", self.url)
+
+    def __repr__(self):
+        return "<SubforkWsClient %s>" % self.url
+
+    def close(self):
+        """Close the WebSocket connection."""
+        try:
+            self._sio.disconnect()
+        except Exception:
+            pass
+        self.connected = False
+
+    def connect(self):
+        """Open the Socket.IO connection (returns immediately when connected)."""
+        try:
+            self._sio.connect(self.url, **self._connect_kwargs)
+        except socketio.exceptions.ConnectionError as e:
+            log.error("SubforkWsClient connection error: %s", e)
+        except Exception as e:
+            log.error("An unexpected error occurred: %s", e)
+
+    def is_connected(self):
+        """Returns True if the WebSocket connection is open."""
+        try:
+            return bool(self._sio.connected)
+        except Exception:
+            return False
+
+    def on(self, event_name: str, handler: Callable[[Any], None]):
+        """Register a handler for a single event name (string).
+
+        :param event_name: event name string, e.g. "created", "done".
+        :param handler: function that receives event data.
+        """
+        siteid = self.http_client.session.get("site_id")
+        if not siteid:
+            raise Exception("site not found")
+        evt = f"site{siteid}:{event_name}"
+
+        @self._sio.on(evt)
+        def _handler(data):
+            try:
+                handler(data)
+            except Exception as e:
+                log.warning("handler error for event %s: %s", event_name, e)
+
+    def wait(self):
+        """Block the current thread and pump the Socket.IO event loop."""
+        if not self.is_connected():
+            self.connect()
+        self._sio.wait()
 
 
 class Subfork(object):
@@ -254,6 +375,7 @@ class Subfork(object):
     __conn = None
     __site = None
     __user = None
+    __ws = None
 
     def __init__(
         self,
@@ -284,6 +406,13 @@ class Subfork(object):
         return cls.__conn
 
     @classmethod
+    def ws(cls):
+        """Returns shared SubforkWsClient object."""
+        if not cls.__ws:
+            cls.__ws = SubforkWsClient(cls.__conn)
+        return cls.__ws
+
+    @classmethod
     def _set_conn(
         cls, host: str, port: int, api_version: str, access_key: str, secret_key: str
     ):
@@ -297,10 +426,11 @@ class Subfork(object):
         :raises ConnectError: if connection could not be established.
         """
         if not cls.__conn:
-            log.info("connecting to %s", host)
             cls.__conn = SubforkHttpClient(
                 host, port, api_version, access_key, secret_key
             )
+        if cls.__conn and cls.__conn.connected:
+            log.info("Subfork: connected to %s", host)
 
     def _request(
         self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
