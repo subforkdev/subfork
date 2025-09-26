@@ -32,33 +32,10 @@ $ cd subfork
 $ pip install .
 ```
 
-Or modify the `subfork.env` file as needed and use the provided Makefile to
-install using distman:
-
-```bash
-$ make install
-```
-
-The deployment root is defined by `${DEPLOY_ROOT}` which is also defined in the
-provided `subfork.env` file. By default, files are installed in `${PWD}/public`.
-
 ## Setup
 
 In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
-
-Subfork uses [envstack](https://github.com/rsgalloway/envstack) to help manage
-environment variables. Environment variables can be stored in different .env
-files, for example `prod.env`, `dev.env` or `default.env` files. Access keys can
-be stored securely in an .env file (see
-[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
-for generating encryption keys):
-
-```bash
-$ envstack keys -eo secrets.env
-```
-
-Or to use environment variables without .env files, set the following:
 
 ```bash
 $ export SUBFORK_ACCESS_KEY=<access key>
@@ -69,7 +46,7 @@ Modify the `subfork.yml` [config file](#config-file) at the root of your project
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
 ```bash
-$ export SUBFORK_CONFIG_FILE=/etc/subfork/conf/subfork.yml
+$ export SUBFORK_CONFIG_FILE=/etc/project/subfork.yml
 ```
 
 ## Quickstart
@@ -181,16 +158,6 @@ task = queue.create_task({"t": 1})
 
 Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 
-#### systemd
-
-For convenience, a systemd service file is included that can run workers defined
-in the `subfork.yml` config file as a service. The Makefile has a `start` target
-defined to install and run the service after the install step:
-
-```bash
-$ sudo make start
-```
-
 ## Config File
 
 The `subfork.yml` config file contains required auth info, page templates,
@@ -238,6 +205,14 @@ $ envstack subfork -s SUBFORK_ACCESS_KEY=abc123 SUBFORK_SECRET_KEY=xyz456 -eo de
 $ ./dev.env -- subfork run
 ```
 
+Access keys can be stored securely in an .env file (see
+[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
+for generating encryption keys):
+
+```bash
+$ envstack keys -eo secrets.env
+```
+
 ## Distribution
 
 File distribution can be optionally managed using the `dist.json` file and
@@ -247,9 +222,6 @@ installed using [distman](https://github.com/rsgalloway/distman):
 $ pip install -U distman
 $ ./prod.env -- dist [OPTIONS]
 ```
-
-The `subfork.env` file defines the `${DEPLOY_ROOT}` environment variable which is
-used by distman for deployment.
 
 ## Demo
 
