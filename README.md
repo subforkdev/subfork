@@ -231,3 +231,11 @@ or get the source code here:
 ```bash
 $ git clone https://github.com/subforkdev/test.fork.io
 ```
+
+## Trademark Notice
+
+Subfork and the Subfork logo are trademarks of Subfork.  
+The BSD 3-Clause License covers the source code but does **not** grant rights to use the Subfork
+name or logo. You may refer to Subfork in a descriptive way (e.g. “compatible with Subfork”),
+but you may not use Subfork trademarks in your own branding, project names, or domains
+without prior written permission. See [TRADEMARKS.md](./TRADEMARKS.md) for details.

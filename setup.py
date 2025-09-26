@@ -21,7 +21,6 @@ def read(*parts):
 
 exec(read("lib", "subfork", "version.py"))
 
-
 setup(
     name="subfork",
     description="Subfork Python API",
@@ -30,16 +29,20 @@ setup(
     author="Subfork",
     author_email="help@subfork.com",
     url="https://github.com/subforkdev/subfork",
+    project_urls={
+        "Documentation": "https://docs.fork.io",
+        "Demo": "https://test.fork.io",
+        "Issue Tracker": "https://github.com/subforkdev/subfork/issues",
+        "Trademark Policy": "https://github.com/subforkdev/subfork/blob/main/TRADEMARKS.md",
+    },
     version=__version__,
-    license="BSD 3-Clause License",
+    license="BSD-3-Clause",
+    license_files=["LICENSE", "TRADEMARKS.md"],
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries",
+        "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
