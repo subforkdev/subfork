@@ -249,7 +249,6 @@ def main():
             print(f"config error: {e}")
             return 1
         except (ClientError, ConnectError) as e:
-            print(f"cannot connect to host {args.host}: {e}")
             return 1
 
         worker_config = config.get_config("workers")

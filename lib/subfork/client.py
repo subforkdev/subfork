@@ -165,7 +165,7 @@ class SubforkHttpClient(object):
                 )
             return self.handle_response(resp)
         except RequestError as e:
-            # self.last_error = str(e)
+            self.last_error = str(e)
             log.warning("request error: %s", e)
         except requests.exceptions.ConnectionError as e:
             self.last_error = str(e)
@@ -217,7 +217,7 @@ class SubforkHttpClient(object):
         if self.session:
             return self.session
         self.session = self._request(
-            "get_session_data",
+            "session",
             data={
                 "source": "python-client",
                 "version": util.get_version(),
@@ -225,8 +225,12 @@ class SubforkHttpClient(object):
         )
         if self.session and self.session.get("sessionid"):
             self.sessionid = str(self.session["sessionid"])
+        else:
+            raise ConnectError("could not get session data")
         if self.session and self.session.get("token"):
             self.token = self.session.get("token")
+        else:
+            raise ConnectError("could not get session data")
         self.headers.update(
             {
                 "sid": self.sessionid,
@@ -266,7 +270,10 @@ class SubforkWsClient:
 
         # get session data
         sid = self.http_client.get_session_token()
-        token = self.http_client.session.get("token")
+        token = None
+        if self.http_client.session:
+            token = self.http_client.session.get("token")
+
         if not sid:
             raise ConnectError(
                 "No session id available; ensure get_session_data() succeeded."
@@ -333,12 +340,9 @@ class SubforkWsClient:
         :param event_name: event name string, e.g. "created", "done".
         :param handler: function that receives event data.
         """
-        siteid = self.http_client.session.get("site_id")
-        if not siteid:
-            raise Exception("site not found")
-        evt = f"site{siteid}:{event_name}"
+        log.debug("listening for event: %s", event_name)
 
-        @self._sio.on(evt)
+        @self._sio.on(event_name)
         def _handler(data):
             try:
                 handler(data)

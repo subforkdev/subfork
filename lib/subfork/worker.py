@@ -51,7 +51,8 @@ class Worker(threads.StoppableThread):
         self.limit = limit
         self.queue_name = queue_name
         self.queue = self.client.get_queue(queue_name)
-        self.event_name = f"task:{self.queue_name}:created"
+        self.created_event = f"task:{self.queue_name}:created"
+        self.done_event = f"task:{self.queue_name}:done"
         self.sessionid = self.client.conn().get_session_token()
         self.wait_time = max(wait_time, config.WAIT_TIME)
         self.version = util.get_version()
@@ -78,8 +79,7 @@ class Worker(threads.StoppableThread):
 
         :param data: event data passed by the server.
         """
-        task = Task(self.client, self.queue, data)
-        log.info("task created: %s", task)
+        log.debug("task created: %s", data)
         self.process_tasks()
 
     def process_tasks(self):
@@ -98,7 +98,7 @@ class Worker(threads.StoppableThread):
         self.process_tasks()
 
         # attach event handler and attempt initial connect
-        self.client.ws().on(self.event_name, handler=self.on_task_created)
+        self.client.ws().on(self.created_event, handler=self.on_task_created)
         self.client.ws().connect()
 
         # main loop: if WS disconnected, poll; otherwise sleep

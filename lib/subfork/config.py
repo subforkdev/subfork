@@ -137,11 +137,11 @@ TASK_RATE_THROTTLE = get_config("task_rate_throttle", 0.1, float)
 # maximum number of task retry attempts
 TASK_MAX_RETRY_LIMIT = 3
 
-# default failure retry limit
-TASK_RETRY_LIMIT = get_config("task_retry_limit", 2, int)
-
 # max task data size in bytes
 TASK_MAX_BYTES = 10240
+
+# default failure retry limit
+TASK_RETRY_LIMIT = get_config("task_retry_limit", 2, int)
 
 # default request interval in seconds
 WAIT_TIME = 30

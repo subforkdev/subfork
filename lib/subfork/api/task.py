@@ -209,7 +209,7 @@ class Task(Base):
 
     def __repr__(self):
         """Returns string representation of Task."""
-        return "<Task %s [%s]>" % (self.queue.name, self.data().get("id"))
+        return "<Task %s [%s]>" % (self.queue.name, self.id())
 
     def get_num_failures(self):
         """Returns number of execution failures."""
