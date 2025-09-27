@@ -75,8 +75,7 @@ class Queue(Base):
         return cls(client, name)
 
     def create_task(self, data: dict = None):
-        """
-        Adds a task to a this Queue.
+        """Adds a task to a this Queue.
 
             >>> sf = subfork.get_client()
             >>> task = sf.get_queue(queue).create_task(data)
@@ -96,8 +95,7 @@ class Queue(Base):
         return None
 
     def dequeue_task(self):
-        """
-        Dequeues next Task from this Queue.
+        """Dequeues next Task from this Queue.
 
             >>> sf = subfork.get_client()
             >>> task = sf.get_queue(queue).dequeue_task()
@@ -115,8 +113,7 @@ class Queue(Base):
         return None
 
     def get_task(self, taskid: str):
-        """
-        Gets a task for a given queue name and task id.
+        """Gets a task for a given queue name and task id.
 
             >>> sf = subfork.get_client()
             >>> task = sf.get_queue(queue).get_task(taskid)
@@ -136,8 +133,7 @@ class Queue(Base):
         return None
 
     def length(self):
-        """
-        Returns the current size of a given queue.
+        """Returns the current size of a given queue.
 
             >>> sf = subfork.get_client()
             >>> num_tasks = sf.get_queue(queue).length()
@@ -156,8 +152,7 @@ class Queue(Base):
         return resp
 
     def on(self, event_name: str, handler: Callable[[Any], None]):
-        """
-        Register a handler for a single event name for this task.
+        """Register a handler for a single event name for this task.
 
             >>> task.on("created", handler)
 
@@ -172,8 +167,7 @@ class Queue(Base):
         self.client.ws().on(f"task:{self.name}:{event_name}", handler)
 
     def listen(self):
-        """
-        Listen for events for this Task in a blocking way.
+        """Listen for events for this Task in a blocking way.
 
             >>> sf = subfork.get_client()
             >>> queue = sf.get_queue(queue)
@@ -200,7 +194,7 @@ class Task(Base):
     def __init__(self, client, queue: str, data: dict):
         """Task constructor.
 
-        :param client: Subfork client instance.
+        :param client: subfork.api.client.Client instance.
         :param queue: Queue instance.
         :param data: Task data.
         """
@@ -319,7 +313,7 @@ class Worker(Base):
     def __init__(self, client, config: dict):
         """Worker constructor.
 
-        :param client: Subfork client instance.
+        :param client: subfork.api.client.Client instance.
         :param config: Worker config.
         """
         super(Worker, self).__init__(client, config)

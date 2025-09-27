@@ -21,20 +21,27 @@ class DatatypeError(Exception):
 class Datatype(Base):
     """Subfork Datatype class."""
 
-    def __init__(self, client, name):
+    def __init__(self, client, name: str):
+        """Initializes Datatype instance.
+
+        :param client: subfork.api.client.Client instance.
+        :param name: Datatype name.
+        :returns: Datatype instance.
+        """
         super(Datatype, self).__init__(client)
         self.name = name
 
     def __repr__(self):
-        return "<Datatype %s>" % (self.name)
+        """Returns string representation of Datatype instance."""
+        return f"<Datatype {self.name}>"
 
     @classmethod
-    def get(cls, client, name):
-        """
-        Gets and returns a new Datatype object instance
+    def get(cls, client, name: str):
+        """Gets and returns a new Datatype object instance
 
-        :param client: Subfork client instance.
-        :param: Datatype name.
+        :param client: subfork.api.client.Client instance.
+        :param name: Datatype name.
+        :returns: Datatype instance.
         """
         return cls(client, name)
 
@@ -42,9 +49,8 @@ class Datatype(Base):
         """Perform batch operations for this datatype."""
         raise NotImplementedError
 
-    def delete(self, params):
-        """
-        Deletes data rows from a given data collection matching
+    def delete(self, params: dict):
+        """Deletes data rows from a given data collection matching
         a set of search params.
 
             >>> sf = subfork.get_client()
@@ -63,9 +69,8 @@ class Datatype(Base):
             },
         )
 
-    def find(self, params, expand=False, page=1, limit=100):
-        """
-        Query a data collection matching a given set of search params.
+    def find(self, params: dict, expand: bool = False, page: int = 1, limit: int = 100):
+        """Query a data collection matching a given set of search params.
         Returns matching results up to a givem limit.
 
             >>> sf = subfork.get_client()
@@ -103,9 +108,8 @@ class Datatype(Base):
         }
         return self.client._request("data/get", data=params)
 
-    def find_one(self, params, expand=False):
-        """
-        Query a data collection matching a given set of search params.
+    def find_one(self, params: dict, expand: bool = False):
+        """Query a data collection matching a given set of search params.
         Returns at most one result.
 
             >>> sf = subfork.get_client()
@@ -116,7 +120,6 @@ class Datatype(Base):
             [[field1, "=", value1], [field2, ">", value2]]
 
         :param expand: expand collection ids.
-
         :returns: results as data dict.
         """
         results = self.find(params, expand, page=1, limit=1)
@@ -124,9 +127,8 @@ class Datatype(Base):
             return results[0]
         return
 
-    def create(self, data):
-        """
-        Creates new data for this datatype.
+    def create(self, data: dict):
+        """Creates new data for this datatype.
 
             >>> sf = subfork.get_client()
             >>> sf.get_data(datatype).create(datadict)
@@ -144,9 +146,8 @@ class Datatype(Base):
             },
         )
 
-    def insert(self, data):
-        """
-        DEPRECATED: use create() instead.
+    def insert(self, data: dict):
+        """DEPRECATED: use create() instead.
 
         Inserts new data into for this datatype.
 
@@ -156,9 +157,8 @@ class Datatype(Base):
         log.warning("Datatype.insert() is deprecated, use Datatype.create()")
         return self.create(data)
 
-    def upsert(self, data):
-        """
-        Convenience method that upserts new data into for this datatype.
+    def upsert(self, data: dict):
+        """Convenience method that upserts new data into for this datatype.
 
         :param data: dictionary of key/value data to insert.
         :returns: created data dict or None.
@@ -168,9 +168,8 @@ class Datatype(Base):
             return self.update(data["id"], data)
         return self.create(data)
 
-    def update(self, dataid, data):
-        """
-        Updates existing data for a this datatype with a given id.
+    def update(self, dataid: str, data: dict):
+        """Updates existing data for a this datatype with a given id.
 
             >>> sf = subfork.get_client()
             >>> sf.get_data(datatype).update(dataid, datadict)

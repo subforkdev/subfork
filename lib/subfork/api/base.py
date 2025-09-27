@@ -40,7 +40,7 @@ class Base(object):
         """
         Implement this method on the subclass to fetch data from server.
 
-        :param client: Subfork connection class instance.
+        :param client: subfork.api.client.Client instance.
         :returns: subclass instance.
         """
         raise NotImplementedError("must be implemented on subclass")

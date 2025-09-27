@@ -342,6 +342,7 @@ def create_workers(
     :param queue_name: name of the queue.
     :param func_name: function import path.
     :param limit: max times a task should be re-run after failure.
+    :returns: True if workers were created.
     """
 
     worker_thread = None

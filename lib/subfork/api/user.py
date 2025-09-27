@@ -19,14 +19,26 @@ class UserNotFound(Exception):
 class Message(Base):
     """Subfork User Message class."""
 
-    def __init__(self, client, data):
+    def __init__(self, client, data: dict):
+        """Initializes Message instance.
+
+        :param client: subfork.api.client.Client instance.
+        :param data: message data dict.
+        :returns: Message instance.
+        """
         super(Message, self).__init__(client, data)
 
 
 class User(Base):
     """Subfork User class."""
 
-    def __init__(self, client, data):
+    def __init__(self, client, data: dict):
+        """Initializes User instance.
+
+        :param client: subfork.api.client.Client instance.
+        :param data: user data dict.
+        :returns: User instance.
+        """
         super(User, self).__init__(client, data)
 
     def __repr__(self):
@@ -48,9 +60,8 @@ class User(Base):
         return None
 
     @classmethod
-    def create(cls, client, username, email):
-        """
-        Create new User with a given username and email.
+    def create(cls, client, username: str, email: str):
+        """Create new User with a given username and email.
 
         :param client: Subfork client instance.
         :param username: User username.
@@ -69,9 +80,12 @@ class User(Base):
         return None
 
     @classmethod
-    def get(cls, client, username):
-        """
-        Get a User with a given username.
+    def get(cls, client, username: str):
+        """Get a User with a given username.
+
+        :param client: Subfork client instance.
+        :param username: User username.
+        :returns: User instance or None.
         """
         results = client._request(
             "user/get",
@@ -83,12 +97,12 @@ class User(Base):
             return cls(client, results)
         return None
 
-    def create_message(self, title, content, level=None):
-        """
-        Creates a new Message for this User.
+    def create_message(self, title: str, content: str, level: int = None):
+        """Creates a new Message for this User.
 
         :param title: message title.
         :param content: message content.
+        :param level: optional message level, e.g. 1=info, 2=warning, 3=error.
         :returns: Message instance or None.
         """
         results = self.client._request(
@@ -116,9 +130,7 @@ class User(Base):
         )
 
     def get_messages(self):
-        """
-        Gets Messages for this User.
-        """
+        """Gets Messages for this User."""
         results = self.client._request(
             "user/messages",
             data={
