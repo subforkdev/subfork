@@ -65,8 +65,7 @@ class SubforkHttpClient(object):
         access_key: str = config.ACCESS_KEY,
         secret_key: str = config.SECRET_KEY,
     ):
-        """
-        Instantiates an instance of the Subfork Http client.
+        """Instantiates an instance of the Subfork Http client.
 
         :param host: site domain ($SUBFORK_DOMAIN).
         :param port: site port ($SUBFORK_PORT).
@@ -120,8 +119,7 @@ class SubforkHttpClient(object):
     def _request(
         self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
     ):
-        """
-        Makes an HTTP POST Request with data provided.
+        """Makes an HTTP POST Request with data provided.
 
         :param url: API endpoint url.
         :param data: request data (optional, must be JSON serializable dict).
@@ -259,7 +257,8 @@ class SubforkWsClient:
         http_client: SubforkHttpClient,
         url: str = config.EVENTS_URL,
     ):
-        """
+        """Instantiates an instance of the Subfork WebSocket client.
+
         :param http_client: An existing SubforkHttpClient
         :param url: Events base URL
         """

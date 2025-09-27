@@ -121,6 +121,9 @@ class Site(Base):
         """
         from subfork.api.page import Page
 
+        if type(include_inherited) != bool:
+            raise ValueError("include_inherited must be a boolean")
+
         results = self.client._request(
             "site/pages",
             data={
@@ -165,15 +168,23 @@ class Site(Base):
 class Version(Base):
     """Subfork Site Version class."""
 
-    def __init__(self, client, site, data):
+    def __init__(self, client, site: Site, data: dict):
+        """Initializes Version instance.
+
+        :param client: subfork.api.client.Client instance.
+        :param site: parent Site instance.
+        :param data: version data dict.
+        :returns: Version instance.
+        """
         super(Version, self).__init__(client, data)
         self.site = site
 
     def __repr__(self):
+        """String representation of Version instance."""
         return "<Version %s>" % self.data().get("number")
 
     def delete(self):
-        raise NotImplementedError
+        raise NotImplementedError("Version deletion not implemented")
 
     def release(self):
         """Set the Site to this Version."""
