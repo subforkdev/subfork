@@ -119,12 +119,6 @@ To process queued tasks using workers defined in the [config file](#config-file)
 $ subfork worker
 ```
 
-Or use the `worker` Makefile target for convenience:
-
-```bash
-$ make worker
-```
-
 ## Workers
 
 Task workers are decentralized Python functions that poll task queues for new jobs.
