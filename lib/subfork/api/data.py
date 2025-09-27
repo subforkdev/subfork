@@ -8,7 +8,6 @@ Contains data api classes and functions.
 """
 
 from subfork import util
-from subfork.logger import log
 from subfork.api.base import Base
 
 
@@ -45,10 +44,6 @@ class Datatype(Base):
         """
         return cls(client, name)
 
-    def batch(self):
-        """Perform batch operations for this datatype."""
-        raise NotImplementedError
-
     def delete(self, params: dict):
         """Deletes data rows from a given data collection matching
         a set of search params.
@@ -57,10 +52,11 @@ class Datatype(Base):
             >>> sf.get_data(datatype).delete(params)
 
         :param params: dictionary of key/value data.
+        :raises: DatatypeError for invalid params.
         :returns: True if delete was successful.
         """
         if not params:
-            raise DatatypeError("Datatype.find(): missing params")
+            raise DatatypeError("missing params")
         return self.client._request(
             "data/delete",
             data={
@@ -95,10 +91,11 @@ class Datatype(Base):
         :param expand: expand nested datatypes.
         :param page: current page number.
         :param limit: limit the query results.
+        :raises: DatatypeError for invalid params.
         :returns: list of results as data dicts.
         """
         if not params:
-            raise DatatypeError("Datatype.find(): missing params")
+            raise DatatypeError("missing params")
         params = {
             "collection": self.name,
             "expand": expand,
@@ -128,16 +125,18 @@ class Datatype(Base):
         return
 
     def create(self, data: dict):
-        """Creates new data for this datatype.
+        """Creates new data for this datatype. Data dict must not
+        contain an "id" key. Use update() to modify existing data.
 
             >>> sf = subfork.get_client()
-            >>> sf.get_data(datatype).create(datadict)
+            >>> sf.get_data(datatype).create(data)
 
         :param data: dictionary of key/value data to create.
+        :raises: DatatypeError for invalid data.
         :returns: data creation results if successful, or None.
         """
         if data.get("id"):
-            raise DatatypeError("Datatype.create(): data contains id")
+            raise DatatypeError("data contains id")
         return self.client._request(
             "data/create",
             data={
@@ -146,24 +145,15 @@ class Datatype(Base):
             },
         )
 
-    def insert(self, data: dict):
-        """DEPRECATED: use create() instead.
-
-        Inserts new data into for this datatype.
-
-        :param data: dictionary of key/value data to insert.
-        :returns: created data dict or None.
-        """
-        log.warning("Datatype.insert() is deprecated, use Datatype.create()")
-        return self.create(data)
-
     def upsert(self, data: dict):
         """Convenience method that upserts new data into for this datatype.
 
+            >>> sf = subfork.get_client()
+            >>> sf.get_data(datatype).upsert(data)
+
         :param data: dictionary of key/value data to insert.
         :returns: created data dict or None.
         """
-        log.warning("Datatype.upsert() is deprecated")
         if data.get("id"):
             return self.update(data["id"], data)
         return self.create(data)
@@ -176,12 +166,13 @@ class Datatype(Base):
 
         :param dataid: id of the data to update.
         :param data: dictionary of key/value data to update.
+        :raises: DatatypeError for invalid data.
         :returns: updated results if successful, or None.
         """
         if data.get("id") and data["id"] != dataid:
-            raise DatatypeError("Datatype.update(): id mismatch")
-        if not data:
-            raise DatatypeError("Datatype.update(): data is empty")
+            raise DatatypeError("id mismatch")
+        elif not data:
+            raise DatatypeError("data is empty")
         return self.client._request(
             "data/update",
             data={

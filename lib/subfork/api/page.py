@@ -45,14 +45,6 @@ class Page(Base):
             return cls(client, results)
         return None
 
-    def get_content(self):
-        """Returns Page content."""
-        raise NotImplementedError
-
-    def set_content(self, value):
-        """Sets Page content."""
-        raise NotImplementedError
-
     def routes(self):
         """Returns Routes for this Page."""
         return [Route(self.client, route) for route in self.data().get("routes")]
