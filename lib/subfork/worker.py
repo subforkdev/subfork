@@ -434,7 +434,9 @@ def validate_worker_config(worker_config: dict):
 
 
 def run_workers(
-    client, worker_configs: dict, autorestart: bool = config.AUTO_RESTART_WORKERS
+    client,
+    worker_configs: dict,
+    autorestart: bool = config.AUTO_RESTART_WORKERS,
 ):
     """
     Main thread that spawns workers.

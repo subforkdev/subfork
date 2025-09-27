@@ -156,8 +156,8 @@ class Queue(Base):
 
             >>> task.on("created", handler)
 
-        The handler is called with the event data, but the task still
-        exists in the queue to be processed by workers.
+        The handler is called with the event data, but the task still exists in
+        the queue to be processed by workers.
 
         :param event_name: event name string, e.g. "created", "done".
         :param handler: function that receives event data.
@@ -167,14 +167,13 @@ class Queue(Base):
         self.client.ws().on(f"task:{self.name}:{event_name}", handler)
 
     def listen(self):
-        """Listen for events for this Task in a blocking way.
+        """Listen for events in a blocking way. This does not process tasks.
+        Use a Worker to process tasks.
 
             >>> sf = subfork.get_client()
-            >>> queue = sf.get_queue(queue)
-            >>> queue.on("created", lambda task: print("task created", task))
-            >>> queue.listen()
-
-        This does not process tasks. Use a Worker to process tasks.
+            >>> q = sf.get_queue("test")
+            >>> q.on("created", lambda task: print("task created", task))
+            >>> q.listen()
         """
         if not self.client.ws():
             raise Exception("WebSocket client not connected")
@@ -306,7 +305,6 @@ class Task(Base):
             log.error(e)
 
 
-# TODO: register worker with server
 class Worker(Base):
     """Subfork Worker class."""
 

@@ -114,7 +114,11 @@ def copy_file(src: str, dst: str, minimize: bool = config.AUTO_MINIMIZE):
 
 
 def create_template(
-    filepath: str, template_folder: str, static_folder: str, templates: list, **kwargs
+    filepath: str,
+    template_folder: str,
+    static_folder: str,
+    templates: list,
+    **kwargs,
 ):
     """Creates a new config file.
 
@@ -170,7 +174,11 @@ def create_build_template(source: str, build_root: str):
     )
 
 
-def build(template_file: str, build_root: str = None, update_links: bool = True):
+def build(
+    template_file: str,
+    build_root: str = None,
+    update_links: bool = True,
+):
     """Creates a build directory for a given site. The build directory
     has the following structure:
 

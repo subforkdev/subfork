@@ -65,7 +65,13 @@ class Datatype(Base):
             },
         )
 
-    def find(self, params: dict, expand: bool = False, page: int = 1, limit: int = 100):
+    def find(
+        self,
+        params: dict,
+        expand: bool = False,
+        page: int = 1,
+        limit: int = 100,
+    ):
         """Query a data collection matching a given set of search params.
         Returns matching results up to a givem limit.
 

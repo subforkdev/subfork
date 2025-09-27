@@ -97,6 +97,11 @@ class SubforkHttpClient(object):
         return self.__auth
 
     def __set_auth(self, auth: Tuple[Optional[str], Optional[str]]):
+        """Sets authentication credentials.
+
+        :param auth: tuple of (access_key, secret_key).
+        :raises ConfigError: if auth is invalid.
+        """
         access_key, secret_key = auth
         self.__auth = (
             access_key,
@@ -117,7 +122,10 @@ class SubforkHttpClient(object):
             raise ConfigError("missing auth")
 
     def _request(
-        self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
+        self,
+        url: str,
+        data: Optional[dict] = None,
+        file_data: Optional[bytes] = None,
     ):
         """Makes an HTTP POST Request with data provided.
 
@@ -417,7 +425,12 @@ class Subfork(object):
 
     @classmethod
     def _set_conn(
-        cls, host: str, port: int, api_version: str, access_key: str, secret_key: str
+        cls,
+        host: str,
+        port: int,
+        api_version: str,
+        access_key: str,
+        secret_key: str,
     ):
         """Establishes a shared server connection.
 
@@ -436,7 +449,10 @@ class Subfork(object):
             log.info("Subfork: connected to %s", host)
 
     def _request(
-        self, url: str, data: Optional[dict] = None, file_data: Optional[bytes] = None
+        self,
+        url: str,
+        data: Optional[dict] = None,
+        file_data: Optional[bytes] = None,
     ):
         """Makes an Http request to the server and returns response data.
 

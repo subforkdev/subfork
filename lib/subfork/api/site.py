@@ -183,9 +183,6 @@ class Version(Base):
         """String representation of Version instance."""
         return "<Version %s>" % self.data().get("number")
 
-    def delete(self):
-        raise NotImplementedError("Version deletion not implemented")
-
     def release(self):
         """Set the Site to this Version."""
         results = self.client._request(
