@@ -14,6 +14,7 @@ import subfork.config as config
 
 from subfork import util
 from subfork.client import ClientError, ConfigError, ConnectError
+from subfork.logger import log
 from subfork.version import __prog__, __version__
 
 
@@ -227,7 +228,7 @@ def main():
             print("template file is required")
             return 2
         elif not os.path.isfile(args.template):
-            print("file not found: %s" % args.template)
+            log.error("file not found: %s", args.template)
             return 2
 
         template_file = os.path.abspath(args.template)
@@ -246,9 +247,10 @@ def main():
         try:
             client = util.get_client(args.host, args.port)
         except ConfigError as e:
-            print(f"config error: {e}")
+            log.error(f"config error: {e}")
             return 1
         except (ClientError, ConnectError) as e:
+            log.error(f"connection error: {e}")
             return 1
 
         worker_config = config.get_config("workers")
@@ -265,7 +267,7 @@ def main():
             return run_workers(client, worker_config)
         elif args.workers:
             if not config.WORKERS:
-                print("no workers found in %s" % args.template)
+                log.error("no workers defined in config file")
                 return 2
             else:
                 worker_config = dict(
