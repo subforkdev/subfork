@@ -40,9 +40,9 @@ class CustomFormatter(logging.Formatter):
     reset = "\x1b[0m"
 
     if sys.platform == "win32":
-        fmt = "[%(asctime)s] - %(name)s - %(module)10s:%(lineno)3d - %(levelname)-7s - %(message)s"
+        fmt = "%(name)s - %(module)10s:%(lineno)3d - %(levelname)-7s - %(message)s"
     else:
-        fmt = "[%(asctime)s] - %(name)s - %(module)10s:%(lineno)3d - {color}%(levelname)-7s{reset} - %(message)s"
+        fmt = "%(name)s - %(module)10s:%(lineno)3d - {color}%(levelname)-7s{reset} - %(message)s"
 
     datefmt = "%y-%m-%d %H:%M:%S"
 
