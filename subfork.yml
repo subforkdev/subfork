@@ -1,7 +1,7 @@
 # enter site domain (e.g. mysite.fork.io)
 domain: ${SUBFORK_DOMAIN}
 events_url: ${SUBFORK_EVENTS_URL}
-# debug: true
+debug: true
 
 # enter site credentials here
 access_key: ${SUBFORK_ACCESS_KEY}

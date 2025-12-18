@@ -8,6 +8,7 @@ Contains threading classes and functions.
 """
 
 import os
+import random
 import time
 import threading
 from typing import Callable, Optional
@@ -144,3 +145,42 @@ class HealthCheck(StoppableThread):
                 log.debug(msg)
             else:
                 log.info(msg)
+
+
+class WsPump(StoppableThread):
+    """Keeps the Subfork WS client connected and pumped via wait()."""
+
+    def __init__(self, client, wait_time: Optional[int] = 1):
+        """
+        :param client: subfork client instance (Subfork)
+        :param wait_time: base backoff in seconds (used after failures)
+        """
+        super(WsPump, self).__init__()
+        self.client = client
+        self.wait_time = wait_time
+
+    def run(self):
+        backoff = float(self.wait_time or 1)
+
+        while not self.stopped():
+            try:
+                ws = self.client.ws()
+
+                # idempotent connect: safe even if already connected
+                if not ws.is_connected():
+                    log.debug("ws_pump: connecting to events server...")
+                    ws.connect()
+
+                log.debug("ws_pump: wait()")
+                ws.wait()  # blocks until disconnect / error
+
+                # if wait() returns, treat as disconnect and retry.
+                log.warning("ws_pump: disconnected (wait() returned)")
+            except Exception as e:
+                log.warning("ws_pump: exception: %s", e)
+
+            # backoff + jitter (cap at 30s)
+            sleep_s = min(30.0, backoff) + random.random()
+            log.debug("ws_pump: retrying in %.1fs", sleep_s)
+            time.sleep(sleep_s)
+            backoff = min(30.0, backoff * 2)

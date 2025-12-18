@@ -14,6 +14,7 @@ import time
 import signal
 import inspect
 import traceback
+import time
 from typing import Callable
 
 from subfork import config
@@ -481,6 +482,10 @@ def run_workers(
         return 2
     else:
         start_running()
+
+    # websocket pump thread
+    ws_pump = threads.WsPump(client)
+    ws_pump.start()
 
     # worker host health check thread
     healthcheck = threads.HealthCheck(client)
