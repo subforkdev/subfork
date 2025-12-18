@@ -320,7 +320,7 @@ def process_task(runner: TaskRunner, task: Task):
             if not resp:
                 log.warning("task not requeued")
         else:
-            return 1
+            return exitcode
 
         # garbage collection
         del worker_mod, worker_func, results, task
