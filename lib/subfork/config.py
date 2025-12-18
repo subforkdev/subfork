@@ -62,7 +62,6 @@ def load_file(filename: str):
     data = {}
 
     if not os.path.exists(filename):
-        print("warning: config file not found: %s" % filename)
         return data
 
     import yaml

@@ -64,11 +64,6 @@ docker-compose.override.yml
 !subfork.env
 
 # -----------------
-# Subfork
-# -----------------
-subfork.yml
-
-# -----------------
 # Terraform (infra/)
 # -----------------
 *.tfstate

@@ -1,5 +1,4 @@
-Subfork Python API
-==================
+# Subfork Python API
 
 [Quickstart](#quickstart) |
 [Basic Commands](#basic-commands) |
@@ -64,11 +63,8 @@ site = client.site()
 Getting pages:
 
 ```python
-# get all the pages
-pages = site.pages()
-
-# or a specific page
-page = site.get_page("index.html")
+pages = site.pages()  # all pages
+page = site.get_page("index.html")  # get index.html
 ```
 
 Getting data:
@@ -167,7 +163,7 @@ domain: ${SUBFORK_DOMAIN}
 access_key: ${SUBFORK_ACCESS_KEY}
 secret_key: ${SUBFORK_SECRET_KEY}
 
-# path to templates and static files (optional)
+# path to templates and static files
 template_folder: templates
 static_folder: static
 
@@ -180,7 +176,7 @@ templates:
     route: /user/<username>
     file: user.html
 
-# task worker definitions (optional)
+# task worker definitions
 workers:
   test:
     queue: test

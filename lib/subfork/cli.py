@@ -279,7 +279,8 @@ def main():
         elif config.WORKERS:
             return run_workers(client, config.WORKERS)
         else:
-            parser.print_help()
+            log.error("no workers defined in config file")
+            return 2
 
     else:
         print("invalid command: %s" % args.which)

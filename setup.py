@@ -64,6 +64,8 @@ setup(
         "PyYAML>=5.4",
         "requests>=2.25.1",
         "urllib3>=1.26.2",
+        "python-socketio~=5.11",
+        "websocket-client>=1.6,<2",
     ],
     python_requires=">=3.6",
     zip_safe=False,
