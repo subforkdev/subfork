@@ -12,6 +12,7 @@ import json
 import re
 import socketio
 import sys
+import threading
 from typing import Callable, Any, Optional, Tuple
 
 import requests
@@ -274,6 +275,8 @@ class SubforkWsClient:
         self.url = url.rstrip("/")
         self._sio = socketio.Client(reconnection=True)
         self.connected = False
+        self._connect_lock = threading.Lock()
+        self._connecting = False
 
         # get session data
         sid = self.http_client.get_session_token()
@@ -326,13 +329,20 @@ class SubforkWsClient:
         self.connected = False
 
     def connect(self):
-        """Open the Socket.IO connection (returns immediately when connected)."""
+        """Open the Socket.IO connection (idempotent + thread-safe)."""
+        with self._connect_lock:
+            if self.is_connected() or self._connecting:
+                return
+            self._connecting = True
         try:
             self._sio.connect(self.url, **self._connect_kwargs)
         except socketio.exceptions.ConnectionError as e:
             log.error("SubforkWsClient connection error: %s", e)
         except Exception as e:
             log.error("An unexpected error occurred: %s", e)
+        finally:
+            with self._connect_lock:
+                self._connecting = False
 
     def is_connected(self):
         """Returns True if the WebSocket connection is open."""

@@ -1,5 +1,6 @@
 # enter site domain (e.g. mysite.fork.io)
 domain: ${SUBFORK_DOMAIN}
+events_url: ${SUBFORK_EVENTS_URL}
 # debug: true
 
 # enter site credentials here
@@ -24,3 +25,9 @@ workers:
   test:
     queue: test
     function: subfork.worker.test
+  stress:
+    queue: stress
+    function: subfork.worker.stress
+  throw:
+    queue: throw
+    function: subfork.worker.throw
