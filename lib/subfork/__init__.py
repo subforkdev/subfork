@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -9,7 +9,7 @@ try:
     envstack.init("subfork")
 
 except Exception as err:
-    print("Could not initialize envstack:", err)
+    pass
 
 from subfork.client import Subfork  # noqa: F401
 from subfork.util import get_client  # noqa: F401

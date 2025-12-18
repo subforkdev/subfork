@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -16,7 +16,11 @@ from subfork.logger import log
 
 
 def deploy(
-    client, template_file: str, comment: str, release: bool = False, force: bool = False
+    client,
+    template_file: str,
+    comment: str,
+    release: bool = False,
+    force: bool = False,
 ):
     """
     Deploy a site build.

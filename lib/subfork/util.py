@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -326,7 +326,7 @@ def get_status_message(status_code: int):
         401: "unauthorized",
         402: "payment required",
         403: "forbidden",
-        404: "not found",
+        404: "site not found",
         405: "method not allowed",
         408: "request timed out",
         413: "payload too large",

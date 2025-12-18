@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -23,7 +23,7 @@ def get_config(key: str, default: str = None, dataclass: type = None):
     """
 
     env_key = "_".join(["SUBFORK", key.upper()])
-    value = os.getenv(env_key, settings.get(key, default))
+    value = os.getenv(env_key) or settings.get(key, default)
 
     if default is not None and dataclass is None:
         dataclass = type(default)
@@ -62,6 +62,7 @@ def load_file(filename: str):
     data = {}
 
     if not os.path.exists(filename):
+        print("warning: config file not found: %s" % filename)
         return data
 
     import yaml
@@ -96,7 +97,7 @@ DEBUG = get_config("debug", False)
 
 # remote host settings
 HOST = get_config("domain")
-PORT = get_config("port", 80)
+PORT = get_config("port", 80, int)
 
 # which api version endpoint to use
 API_VERSION = get_config("api_version", "api")
@@ -114,35 +115,36 @@ AUTO_RESTART_WORKERS = get_config("auto_restart", True)
 # default build directory
 BUILD_FOLDER = get_config("build_folder", "public")
 
+# websocket settings
+EVENTS_URL = get_config("events_url", "https://events.subfork.com")
+SOCKETIO_PATH = get_config("socketio_path", "socket.io")
+
 # maximum upload size in bytes
 MAX_UPLOAD_BYTES = 1e7
 
-# minimum wait time between queue checks
-MIN_WAIT_TIME = 30
-
 # maximum number of tasks to process at once
-TASK_BATCH_SIZE = int(get_config("task_batch_size", 100))
+TASK_BATCH_SIZE = get_config("task_batch_size", 100, int)
 
 # default worker function
 TASK_FUNCTION = get_config("task_function")
 
 # name of the default task queue
-TASK_QUEUE = get_config("task_queue")
+TASK_QUEUE = settings.get("task_queue")
 
 # task dequeue rate throttle (dequeue wait time in seconds)
-TASK_RATE_THROTTLE = float(get_config("task_rate_throttle", 0.1))
+TASK_RATE_THROTTLE = get_config("task_rate_throttle", 0.1, float)
 
 # maximum number of task retry attempts
 TASK_MAX_RETRY_LIMIT = 3
 
-# default failure retry limit
-TASK_RETRY_LIMIT = int(get_config("task_retry_limit", 2))
-
 # max task data size in bytes
 TASK_MAX_BYTES = 10240
 
+# default failure retry limit
+TASK_RETRY_LIMIT = get_config("task_retry_limit", 2, int)
+
 # default request interval in seconds
-WAIT_TIME = float(get_config("request_interval", MIN_WAIT_TIME))
+WAIT_TIME = 30
 
 # worker settings
 WORKERS = get_config("workers", {})
@@ -154,11 +156,13 @@ IGNORABLE = [
     "*.bak",
     "*.dll",
     "*.exe",
+    "*.egg",
     ".git*",
     "*.jar",
     "*.php",
     "*.py",
     "*.pyc",
+    "*.pyd",
     "*.reg",
     "*.sh",
     "*.slo",

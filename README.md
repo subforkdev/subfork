@@ -32,33 +32,10 @@ $ cd subfork
 $ pip install .
 ```
 
-Or modify the `subfork.env` file as needed and use the provided Makefile to
-install using distman:
-
-```bash
-$ make install
-```
-
-The deployment root is defined by `${DEPLOY_ROOT}` which is also defined in the
-provided `subfork.env` file. By default, files are installed in `${PWD}/public`.
-
 ## Setup
 
 In order to authenticate with the Subfork API, you will first need to create
 a site and API access keys for your site at [subfork.com](https://subfork.com).
-
-Subfork uses [envstack](https://github.com/rsgalloway/envstack) to help manage
-environment variables. Environment variables can be stored in different .env
-files, for example `prod.env`, `dev.env` or `default.env` files. Access keys can
-be stored securely in an .env file (see
-[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
-for generating encryption keys):
-
-```bash
-$ envstack keys -eo secrets.env
-```
-
-Or to use environment variables without .env files, set the following:
 
 ```bash
 $ export SUBFORK_ACCESS_KEY=<access key>
@@ -69,7 +46,7 @@ Modify the `subfork.yml` [config file](#config-file) at the root of your project
 or set `$SUBFORK_CONFIG_FILE` to the path to `subfork.yml`:
 
 ```bash
-$ export SUBFORK_CONFIG_FILE=/etc/subfork/conf/subfork.yml
+$ export SUBFORK_CONFIG_FILE=/etc/project/subfork.yml
 ```
 
 ## Quickstart
@@ -142,12 +119,6 @@ To process queued tasks using workers defined in the [config file](#config-file)
 $ subfork worker
 ```
 
-Or use the `worker` Makefile target for convenience:
-
-```bash
-$ make worker
-```
-
 ## Workers
 
 Task workers are decentralized Python functions that poll task queues for new jobs.
@@ -181,24 +152,10 @@ task = queue.create_task({"t": 1})
 
 Tasks and task data can be viewed on the tasks page of the subfork dashboard.
 
-#### systemd
-
-For convenience, a systemd service file is included that can run workers defined
-in the `subfork.yml` config file as a service. The Makefile has a `start` target
-defined to install and run the service after the install step:
-
-```bash
-$ sudo make start
-```
-
 ## Config File
 
 The `subfork.yml` config file contains required auth info, page templates,
 routes (or endpoints), static files and task worker definitions.
-
-```bash
-$ curl -o subfork.yml https://raw.githubusercontent.com/subforkdev/master/subfork.yml
-```
 
 The example config file contains two endpoints and a worker:
 
@@ -242,6 +199,14 @@ $ envstack subfork -s SUBFORK_ACCESS_KEY=abc123 SUBFORK_SECRET_KEY=xyz456 -eo de
 $ ./dev.env -- subfork run
 ```
 
+Access keys can be stored securely in an .env file (see
+[instructions here](https://github.com/rsgalloway/envstack?tab=readme-ov-file#encryption)
+for generating encryption keys):
+
+```bash
+$ envstack keys -eo secrets.env
+```
+
 ## Distribution
 
 File distribution can be optionally managed using the `dist.json` file and
@@ -252,9 +217,6 @@ $ pip install -U distman
 $ ./prod.env -- dist [OPTIONS]
 ```
 
-The `subfork.env` file defines the `${DEPLOY_ROOT}` environment variable which is
-used by distman for deployment.
-
 ## Demo
 
 See [test.fork.io](https://test.fork.io) for an example of a simple demo site,
@@ -263,3 +225,11 @@ or get the source code here:
 ```bash
 $ git clone https://github.com/subforkdev/test.fork.io
 ```
+
+## Trademark Notice
+
+Subfork and the Subfork logo are trademarks of Subfork.  
+The BSD 3-Clause License covers the source code but does **not** grant rights to use the Subfork
+name or logo. You may refer to Subfork in a descriptive way (e.g. “compatible with Subfork”),
+but you may not use Subfork trademarks in your own branding, project names, or domains
+without prior written permission. See [TRADEMARKS.md](./TRADEMARKS.md) for details.

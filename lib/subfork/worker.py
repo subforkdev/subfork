@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python33
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -13,6 +13,7 @@ import json
 import time
 import signal
 import inspect
+import traceback
 from typing import Callable
 
 from subfork import config
@@ -34,14 +35,26 @@ class Worker(threads.StoppableThread):
         limit: int = 1,
         wait_time: int = config.WAIT_TIME,
     ):
+        """Initializes Worker instance.
+
+        :param client: subfork client.
+        :param queue_name: name of the queue.
+        :param func_name: function import path.
+        :param limit: max times a task should be re-run after failure.
+        :param wait_time: time in seconds to wait between polling attempts.
+        :returns: Worker instance.
+        """
         super(Worker, self).__init__()
         self.client = client
         self.func_name = func_name
-        self.name = "%s worker" % queue_name
+        self.name = f"{queue_name} worker"
         self.limit = limit
+        self.queue_name = queue_name
         self.queue = self.client.get_queue(queue_name)
+        self.created_event = f"task:{self.queue_name}:created"
+        self.done_event = f"task:{self.queue_name}:done"
         self.sessionid = self.client.conn().get_session_token()
-        self.wait_time = wait_time
+        self.wait_time = max(wait_time, config.WAIT_TIME)
         self.version = util.get_version()
 
     def get_tasks(
@@ -50,7 +63,6 @@ class Worker(threads.StoppableThread):
         throttle: int = config.TASK_RATE_THROTTLE,
     ):
         """Generator that yields tasks from the queue in chunks."""
-
         queue_size = self.queue.length()
         task_num = 0
 
@@ -62,15 +74,41 @@ class Worker(threads.StoppableThread):
             yield (task_num, task)
             time.sleep(throttle)
 
-    def run(self):
-        """Called when thread starts."""
-        log.info("starting %s" % self.queue.name)
-        while not self.stopped():
+    def on_task_created(self, data: dict):
+        """Task created event handler.
+
+        :param data: event data passed by the server.
+        """
+        log.debug("task created: %s", data)
+        self.process_tasks()
+
+    def process_tasks(self):
+        """Processes tasks from the queue."""
+        if not self.stopped():
+            log.debug("processing tasks in queue: %s", self.queue.name)
             for task_num, task in self.get_tasks():
                 worker_thread = TaskRunner(self, task, task_num)
                 worker_thread.start()
+
+    def run(self):
+        """Called when thread starts."""
+        log.info("starting worker: %s", self)
+
+        # drain any backlog once at startup
+        self.process_tasks()
+
+        # attach event handler and attempt initial connect
+        self.client.ws().on(self.created_event, handler=self.on_task_created)
+        self.client.ws().connect()
+
+        # main loop: if WS disconnected, poll; otherwise sleep
+        while not self.stopped():
+            if not self.client.ws().is_connected():
+                log.debug("socket failed, polling queue: %s", self.queue.name)
+                self.process_tasks()
             self._stop_event.wait(self.wait_time)
-        log.info("stopping %s", self)
+
+        log.info("stopping worker: %s", self)
         stop_running()
 
 
@@ -78,6 +116,13 @@ class TaskRunner(threads.StoppableThread):
     """Thread that runs task function."""
 
     def __init__(self, parent, task: Task, task_num: int = 1):
+        """Initializes TaskRunner instance.
+
+        :param parent: Worker instance.
+        :param task: subfork.api.task.Task instance.
+        :param task_num: task number.
+        :returns: TaskRunner instance.
+        """
         super(TaskRunner, self).__init__()
         self.name = "%s worker %s" % (task.queue.name, task_num)
         self.parent = parent
@@ -85,17 +130,18 @@ class TaskRunner(threads.StoppableThread):
 
     @property
     def func_name(self):
+        """Returns worker function name."""
         return self.parent.func_name
 
     @property
     def limit(self):
+        """Returns task retry limit."""
         return self.parent.limit
 
     def run(self):
         """Called when thread starts."""
         log.info("starting %s", self.name)
         try:
-            # execute task function and save results
             process_task(self, self.task)
         except Exception as e:
             log.exception("unexpected error: %s", str(e))
@@ -169,6 +215,7 @@ def import_function(func_name: str):
         log.error("module not found: %s", str(err))
 
     except Exception as err:
+        traceback.print_exc()
         log.exception(err)
 
     return mod, func
@@ -287,7 +334,6 @@ def create_workers(
     queue_name: str,
     func_name: str,
     limit: int = 1,
-    wait_time: int = config.WAIT_TIME,
 ):
     """
     Creates and starts workers.
@@ -296,7 +342,7 @@ def create_workers(
     :param queue_name: name of the queue.
     :param func_name: function import path.
     :param limit: max times a task should be re-run after failure.
-    :param wait_time: queue polling interval (min. 30 seconds).
+    :returns: True if workers were created.
     """
 
     worker_thread = None
@@ -314,7 +360,6 @@ def create_workers(
             queue_name=queue_name,
             func_name=func_name,
             limit=limit,
-            wait_time=wait_time,
         )
         worker_thread.start()
 
@@ -385,16 +430,13 @@ def validate_worker_config(worker_config: dict):
         log.error("invalid retry limit: %s", limit)
         return False
 
-    wait_time = worker_config.get("wait", config.WAIT_TIME)
-    if wait_time < config.MIN_WAIT_TIME:
-        log.error("invalid wait time: %s", wait_time)
-        return False
-
     return True
 
 
 def run_workers(
-    client, worker_configs: dict, autorestart: bool = config.AUTO_RESTART_WORKERS
+    client,
+    worker_configs: dict,
+    autorestart: bool = config.AUTO_RESTART_WORKERS,
 ):
     """
     Main thread that spawns workers.
@@ -426,7 +468,6 @@ def run_workers(
             queue_name=worker_config.get("queue"),
             func_name=worker_config.get("function"),
             limit=worker_config.get("limit", config.TASK_RETRY_LIMIT),
-            wait_time=worker_config.get("wait", config.WAIT_TIME),
         )
 
         if success:
