@@ -7,18 +7,18 @@ __doc__ = """
 Contains utility functions and classes.
 """
 
+import fnmatch
+import json
 import os
 import re
 import sys
-import json
 import time
-import yaml
-import requests
-import fnmatch
 from functools import wraps
 from typing import Callable
 
+import requests
 import subfork
+import yaml
 from subfork import config
 from subfork.logger import log
 from subfork.version import __prog__, __version__

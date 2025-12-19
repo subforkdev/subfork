@@ -7,14 +7,13 @@ __doc__ = """
 Contains task api classes and functions.
 """
 
-import sys
 import copy
 import json
+import sys
 import time
-from typing import Callable, Any
+from typing import Any, Callable
 
-from subfork import config
-from subfork import util
+from subfork import config, util
 from subfork.api.base import Base
 from subfork.logger import log
 

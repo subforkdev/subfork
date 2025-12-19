@@ -10,11 +10,12 @@ Contains client classes and functions.
 import hashlib
 import json
 import re
-import socketio
 import sys
-from typing import Callable, Any, Optional, Tuple
+import threading
+from typing import Any, Callable, Optional, Tuple
 
 import requests
+import socketio
 import subfork.config as config
 import subfork.util as util
 from subfork.api.site import Site
@@ -273,7 +274,9 @@ class SubforkWsClient:
         self.http_client = http_client
         self.url = url.rstrip("/")
         self._sio = socketio.Client(reconnection=True)
-        self.connected = False
+        self._connect_lock = threading.Lock()
+        self._connected = False
+        self._connecting = False
 
         # get session data
         sid = self.http_client.get_session_token()
@@ -306,12 +309,14 @@ class SubforkWsClient:
         # lifecycle hooks
         @self._sio.event
         def connect():
-            self.connected = True
+            with self._connect_lock:
+                self._connected = True
             log.debug("SubforkWsClient: connected to %s", self.url)
 
         @self._sio.event
         def disconnect():
-            self.connected = False
+            with self._connect_lock:
+                self._connected = False
             log.debug("SubforkWsClient: disconnected from %s", self.url)
 
     def __repr__(self):
@@ -323,16 +328,24 @@ class SubforkWsClient:
             self._sio.disconnect()
         except Exception:
             pass
-        self.connected = False
+        with self._connect_lock:
+            self._connected = False
 
     def connect(self):
-        """Open the Socket.IO connection (returns immediately when connected)."""
+        """Open the Socket.IO connection (idempotent + thread-safe)."""
+        with self._connect_lock:
+            if self.is_connected() or self._connecting:
+                return
+            self._connecting = True
         try:
             self._sio.connect(self.url, **self._connect_kwargs)
         except socketio.exceptions.ConnectionError as e:
             log.error("SubforkWsClient connection error: %s", e)
         except Exception as e:
-            log.error("An unexpected error occurred: %s", e)
+            log.error("SubforkWsClient unhandled error: %s", e)
+        finally:
+            with self._connect_lock:
+                self._connecting = False
 
     def is_connected(self):
         """Returns True if the WebSocket connection is open."""

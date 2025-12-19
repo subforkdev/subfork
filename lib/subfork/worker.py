@@ -7,19 +7,16 @@ __doc__ = """
 Contains task worker classes and functions.
 """
 
-import os
-import sys
-import json
-import time
-import signal
 import inspect
+import json
+import os
+import signal
+import sys
+import time
 import traceback
 from typing import Callable
 
-from subfork import config
-from subfork import sample
-from subfork import threads
-from subfork import util
+from subfork import config, sample, threads, util
 from subfork.api.task import Task
 from subfork.logger import log
 
@@ -99,7 +96,6 @@ class Worker(threads.StoppableThread):
 
         # attach event handler and attempt initial connect
         self.client.ws().on(self.created_event, handler=self.on_task_created)
-        self.client.ws().connect()
 
         # main loop: if WS disconnected, poll; otherwise sleep
         while not self.stopped():
@@ -262,7 +258,7 @@ def process_task(runner: TaskRunner, task: Task):
         worker_mod, worker_func = import_function(runner.func_name)
         worker_data = task.get_worker_data()
 
-        if not worker_mod and worker_func:
+        if not worker_mod or not worker_func:
             raise Exception("error getting worker function: %s" % runner.func_name)
 
         # update task function data
@@ -321,7 +317,7 @@ def process_task(runner: TaskRunner, task: Task):
             if not resp:
                 log.warning("task not requeued")
         else:
-            return 1
+            return exitcode
 
         # garbage collection
         del worker_mod, worker_func, results, task
@@ -456,6 +452,9 @@ def run_workers(
     # total worker thread counter
     worker_count = 0
 
+    # establish client websocket connection
+    client.ws().connect()
+
     # iterate through worker configs and start workers
     for config_name, worker_config in worker_configs.items():
         log.debug("loading worker config %s", config_name)
@@ -479,6 +478,10 @@ def run_workers(
         return 2
     else:
         start_running()
+
+    # websocket pump thread
+    ws_pump = threads.WsPump(client)
+    ws_pump.start()
 
     # worker host health check thread
     healthcheck = threads.HealthCheck(client)

@@ -9,9 +9,7 @@ Contains deployment classes and functions.
 
 import os
 
-from subfork import build
-from subfork import config
-from subfork import util
+from subfork import build, config, util
 from subfork.logger import log
 
 

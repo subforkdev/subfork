@@ -8,21 +8,18 @@ Contains dev server classes and functions.
 """
 
 import os
-import sys
 import signal
+import sys
 import time
 import webbrowser
 from functools import wraps
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
 
 import flask
-
 import subfork
-from subfork import build
-from subfork import config
-from subfork import util
-from subfork.threads import FileWatcher, StoppableThread
+from subfork import build, config, util
 from subfork.logger import log, setup_stream_handler
+from subfork.threads import FileWatcher, StoppableThread
 
 setup_stream_handler("subfork")
 
@@ -207,6 +204,7 @@ class App(flask.Flask):
     def setup_logger(self):
         """Redirects werkzeug logger."""
         import logging
+
         from werkzeug.serving import WSGIRequestHandler
 
         werkzeug_logger = logging.getLogger("werkzeug")

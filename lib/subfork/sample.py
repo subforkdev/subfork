@@ -7,14 +7,13 @@ __doc__ = """
 Contains worker process data sample classes and functions.
 """
 
-import os
-import sys
-import psutil
-import socket
 import getpass
+import os
+import socket
+import sys
 
+import psutil
 from subfork import util
-
 
 # cache some information for worker processes
 hostname = socket.gethostname()

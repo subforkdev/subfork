@@ -24,3 +24,9 @@ workers:
   test:
     queue: test
     function: subfork.worker.test
+  # stress:
+  #   queue: stress
+  #   function: subfork.worker.stress
+  # throw:
+  #   queue: throw
+  #   function: subfork.worker.throw
