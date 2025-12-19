@@ -11,7 +11,6 @@ import os
 import sys
 
 import subfork.config as config
-
 from subfork import util
 from subfork.client import ClientError, ConfigError, ConnectError
 from subfork.logger import log

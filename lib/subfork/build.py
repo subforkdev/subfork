@@ -11,9 +11,7 @@ import os
 import shutil
 from html.parser import HTMLParser
 
-from subfork import config
-from subfork import minify
-from subfork import util
+from subfork import config, minify, util
 from subfork.logger import log
 
 

@@ -9,13 +9,11 @@ Contains threading classes and functions.
 
 import os
 import random
-import time
 import threading
+import time
 from typing import Callable, Optional
 
-from subfork import config
-from subfork import sample
-from subfork import util
+from subfork import config, sample, util
 from subfork.logger import log
 
 # time to wait between file checks in seconds

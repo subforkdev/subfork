@@ -7,20 +7,16 @@ __doc__ = """
 Contains task worker classes and functions.
 """
 
-import os
-import sys
-import json
-import time
-import signal
 import inspect
-import traceback
+import json
+import os
+import signal
+import sys
 import time
+import traceback
 from typing import Callable
 
-from subfork import config
-from subfork import sample
-from subfork import threads
-from subfork import util
+from subfork import config, sample, threads, util
 from subfork.api.task import Task
 from subfork.logger import log
 

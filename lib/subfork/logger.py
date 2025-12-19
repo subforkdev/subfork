@@ -7,8 +7,8 @@ __doc__ = """
 Contains logging handlers.
 """
 
-import sys
 import logging
+import sys
 
 from subfork import config
 from subfork.version import __prog__, __version__
