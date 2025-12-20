@@ -275,7 +275,7 @@ class SubforkWsClient:
         """
         self.http_client = http_client
         self.url = url.rstrip("/")
-        self._sio = socketio.Client(reconnection=True)
+        self._sio = socketio.Client(reconnection=False)
         self._connect_lock = threading.Lock()
         self._connected = False
         self._connecting = False
