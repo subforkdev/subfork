@@ -1,4 +1,4 @@
-#!/usr/bin/env python33
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -97,10 +97,14 @@ class Worker(threads.StoppableThread):
         # attach event handler and attempt initial connect
         self.client.ws().on(self.created_event, handler=self.on_task_created)
 
+        start = time.time()
+        grace = 5.0  # seconds
+
         # main loop: if WS disconnected, poll; otherwise sleep
         while not self.stopped():
             if not self.client.ws().is_connected():
-                log.debug("socket failed, polling queue: %s", self.queue.name)
+                if time.time() - start > grace:
+                    log.debug("socket failed, polling queue: %s", self.queue.name)
                 self.process_tasks()
             self._stop_event.wait(self.wait_time)
 
@@ -451,9 +455,6 @@ def run_workers(
 
     # total worker thread counter
     worker_count = 0
-
-    # establish client websocket connection
-    client.ws().connect()
 
     # iterate through worker configs and start workers
     for config_name, worker_config in worker_configs.items():

@@ -1,4 +1,4 @@
-#!/usr/bin/env python33
+#!/usr/bin/env python3
 #
 # Copyright (c) Subfork. All rights reserved.
 #
@@ -7,4 +7,4 @@
 #
 
 __prog__ = "subfork"
-__version__ = "1.0.2"
+__version__ = "1.0.3"

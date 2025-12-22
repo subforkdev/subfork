@@ -88,6 +88,7 @@ class SubforkHttpClient(object):
             "token": None,
             "user-agent": f"python-{__prog__}/{__version__}",
         }
+        self._session_lock = threading.Lock()
         self.check_config()
         self.get_session_data()
 
@@ -219,35 +220,36 @@ class SubforkHttpClient(object):
                 raise RequestError(status_message)
         return None
 
-    def get_session_data(self):
+    def get_session_data(self, refresh: bool = False):
         """Requests and returns session data from remote server."""
-        if self.session:
+        with self._session_lock:
+            if self.session and not refresh:
+                return self.session
+            self.session = self._request(
+                "session",
+                data={
+                    "source": "python-client",
+                    "version": util.get_version(),
+                },
+            )
+            if self.session and self.session.get("sessionid"):
+                self.sessionid = str(self.session["sessionid"])
+            else:
+                raise ConnectError("could not get session data")
+            if self.session and self.session.get("token"):
+                self.token = self.session.get("token")
+            else:
+                raise ConnectError("could not get session data")
+            self.headers.update(
+                {
+                    "sid": self.sessionid,
+                    "Authorization": f"Bearer {self.token}",
+                    "user-agent": f"subfork-python/{__version__}",
+                    "x-client": "subfork-python",
+                    "x-client-version": __version__,
+                }
+            )
             return self.session
-        self.session = self._request(
-            "session",
-            data={
-                "source": "python-client",
-                "version": util.get_version(),
-            },
-        )
-        if self.session and self.session.get("sessionid"):
-            self.sessionid = str(self.session["sessionid"])
-        else:
-            raise ConnectError("could not get session data")
-        if self.session and self.session.get("token"):
-            self.token = self.session.get("token")
-        else:
-            raise ConnectError("could not get session data")
-        self.headers.update(
-            {
-                "sid": self.sessionid,
-                "Authorization": f"Bearer {self.token}",
-                "user-agent": f"subfork-python/{__version__}",
-                "x-client": "subfork-python",
-                "x-client-version": __version__,
-            }
-        )
-        return self.session
 
     def get_session_token(self):
         """Return the session id for with the current connection."""
@@ -273,40 +275,11 @@ class SubforkWsClient:
         """
         self.http_client = http_client
         self.url = url.rstrip("/")
-        self._sio = socketio.Client(reconnection=True)
+        self._sio = socketio.Client(reconnection=False)
         self._connect_lock = threading.Lock()
         self._connected = False
         self._connecting = False
 
-        # get session data
-        sid = self.http_client.get_session_token()
-        token = None
-        if self.http_client.session:
-            token = self.http_client.session.get("token")
-
-        if not sid:
-            raise ConnectError(
-                "No session id available; ensure get_session_data() succeeded."
-            )
-        if not token:
-            raise ConnectError(
-                "No token available; ensure get_session_data() succeeded."
-            )
-
-        # default headers
-        headers = {
-            "sid": sid,
-            "Authorization": f"Bearer {token}",
-            "user-agent": self.http_client.headers.get("user-agent", "subfork-python"),
-        }
-        self._connect_kwargs = {
-            "headers": headers,
-            "auth": {"token": token},
-            "socketio_path": config.SOCKETIO_PATH,
-            "transports": ["websocket"],
-        }
-
-        # lifecycle hooks
         @self._sio.event
         def connect():
             with self._connect_lock:
@@ -321,6 +294,29 @@ class SubforkWsClient:
 
     def __repr__(self):
         return "<SubforkWsClient %s>" % self.url
+
+    def _build_connect_kwargs(self):
+        """Builds connection kwargs for Socket.IO connect()."""
+        self.http_client.get_session_data(refresh=True)
+
+        sid = self.http_client.get_session_token()
+        token = (
+            self.http_client.session.get("token") if self.http_client.session else None
+        )
+        if not sid or not token:
+            raise ConnectError("missing sid/token; cannot connect")
+
+        headers = {
+            "sid": sid,
+            "Authorization": f"Bearer {token}",
+            "user-agent": self.http_client.headers.get("user-agent", "subfork-python"),
+        }
+        return {
+            "headers": headers,
+            "auth": {"token": token},
+            "socketio_path": config.SOCKETIO_PATH,
+            "transports": ["websocket"],
+        }
 
     def close(self):
         """Close the WebSocket connection."""
@@ -338,7 +334,8 @@ class SubforkWsClient:
                 return
             self._connecting = True
         try:
-            self._sio.connect(self.url, **self._connect_kwargs)
+            connect_kwargs = self._build_connect_kwargs()
+            self._sio.connect(self.url, **connect_kwargs)
         except socketio.exceptions.ConnectionError as e:
             log.error("SubforkWsClient connection error: %s", e)
         except Exception as e:

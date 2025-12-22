@@ -139,10 +139,8 @@ class HealthCheck(StoppableThread):
                 "vms": util.b2h(samp["process"]["memory"]["vms"]),
             }
             msg = "cpu:{cpu}% rss:{rss} vms:{vms} runtime:{runtime}".format(**kwargs)
-            if runtime % 3600:
+            if kwargs["cpu"] > 80:
                 log.debug(msg)
-            else:
-                log.info(msg)
 
 
 class WsPump(StoppableThread):
@@ -158,26 +156,35 @@ class WsPump(StoppableThread):
         self.wait_time = wait_time
 
     def run(self):
-        backoff = float(self.wait_time or 1)
+        """Called when thread starts."""
+        base = float(self.wait_time or 1)
+        backoff = base
 
         while not self.stopped():
+            connected_at = None
             try:
                 ws = self.client.ws()
 
-                # idempotent connect: safe even if already connected
                 if not ws.is_connected():
                     log.debug("ws_pump: connecting to events server...")
                     ws.connect()
 
-                log.debug("ws_pump: wait()")
-                ws.wait()  # blocks until disconnect / error
+                # if connect succeeded, reset backoff immediately
+                if ws.is_connected():
+                    backoff = base
+                    connected_at = time.time()
 
-                # if wait() returns, treat as disconnect and retry.
+                log.debug("ws_pump: wait()")
+                ws.wait()
+
                 log.warning("ws_pump: disconnected (wait() returned)")
             except Exception as e:
                 log.warning("ws_pump: exception: %s", e)
 
-            # backoff + jitter (cap at 30s)
+            # reset backoff after a successful connection for 30+ seconds
+            if connected_at and (time.time() - connected_at) > 30:
+                backoff = base
+
             sleep_s = min(30.0, backoff) + random.random()
             log.debug("ws_pump: retrying in %.1fs", sleep_s)
             time.sleep(sleep_s)
