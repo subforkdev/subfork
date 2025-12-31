@@ -70,7 +70,7 @@ class Datatype(Base):
         params: dict,
         expand: bool = False,
         page: int = 1,
-        limit: int = 100,
+        limit: int = 500,
     ):
         """Query a data collection matching a given set of search params.
         Returns matching results up to a givem limit.
@@ -102,14 +102,14 @@ class Datatype(Base):
         """
         if not params:
             raise DatatypeError("missing params")
-        params = {
+        data = {
             "collection": self.name,
             "expand": expand,
             "limit": limit,
-            "paging": {"current_page": page, "results_per_page": limit},
+            "page": page,
             "params": params,
         }
-        return self.client._request("data/get", data=params)
+        return self.client._request("data/get", data=data)
 
     def find_one(self, params: dict, expand: bool = False):
         """Query a data collection matching a given set of search params.
