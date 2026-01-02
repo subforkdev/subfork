@@ -258,7 +258,7 @@ def create_app(client, template: dict):
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     # api endpoint stubs
-    app.route("/api/get_session_data", methods=["POST"])(
+    app.route("/api/session", methods=["POST"])(
         client_required(get_session_data, client)
     )
     app.route("/api/<obj>/<op>", methods=["POST"])(client_required(api_request, client))
